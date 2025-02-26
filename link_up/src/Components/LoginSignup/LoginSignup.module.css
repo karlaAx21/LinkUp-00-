@@ -13,90 +13,106 @@
   transform: translate(-50%, -50%);
 }
 
-  
-  .header .text {
-    font-size: 24px;
-    font-weight: bold;
-    color: white;
-  }
-  
-  .header .underline {
-    width: 60px;
-    height: 4px;
-    background-color: #39ff14;
-    margin: 10px auto;
-    border-radius: 2px;
-  }
-  
-  .input {
-    display: flex;
-    align-items: center;
-    background: #333;
-    padding: 12px;
-    border-radius: 5px;
-    margin: 15px 0;
-  }
-  
-  .input i {
-    color: #39ff14;
-    font-size: 18px;
-    margin-right: 10px;
-  }
-  
-  .input input {
-    flex: 1;
-    background: none;
-    border: none;
-    outline: none;
-    color: white;
-    font-size: 16px;
-    padding: 5px;
-  }
-  
-  .input input::placeholder {
-    color: #bbb;
-  }
-  
-  .forgot-password {
-    font-size: 14px;
-    color: white;
-    margin-top: 10px;
-  }
-  
-  .forgot-password span {
-    color: #39ff14;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  
-  .forgot-password span:hover {
-    text-decoration: underline;
-  }
-  
-  .submit-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-  }
-  
-  .submit {
-    background: #39ff14;
-    color: black;
-    padding: 15px 20px;
-    margin: 20px;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-  }
-  
-  .submit:hover {
-    background: #159fd6;
-  }
-  .error {
-    color: red;
-    font-size: 14px;
-    margin-bottom: 10px;
-  }
-  
+.header .text {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+}
+
+.header .underline {
+  width: 60px;
+  height: 4px;
+  background-color: #39ff14;
+  margin: 10px auto;
+  border-radius: 2px;
+}
+
+.input {
+  display: flex;
+  align-items: center;
+  background: #333;
+  padding: 12px;
+  border-radius: 5px;
+  margin: 15px 0;
+}
+
+.input i {
+  color: #39ff14;
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.input input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 16px;
+  padding: 5px;
+}
+
+.input input::placeholder {
+  color: #bbb;
+}
+
+/* ✅ Fixed Forgot Password Styling */
+.forgotPassword {
+  font-size: 14px;
+  color: #bbb; /* Light gray text initially */
+  margin-top: 10px;
+  cursor: pointer; /* ✅ Makes it clickable */
+  font-weight: bold;
+  transition: color 0.3s ease-in-out;
+}
+
+.forgotPassword:hover {
+  text-decoration: underline; /* ✅ Adds underline effect */
+  color: #39ff14; /* ✅ Changes to neon green on hover */
+}
+
+.submit-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.submit {
+  background: #39ff14;
+  color: black;
+  padding: 15px 20px;
+  margin: 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+}
+
+.submit:hover {
+  background: #159fd6;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.loginText {
+  font-size: 14px;
+  color: #bbb;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.loginText span {
+  color: #39ff14;
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+}
+
+.loginText span:hover {
+  text-decoration: underline;
+  color: #32e013;
+}

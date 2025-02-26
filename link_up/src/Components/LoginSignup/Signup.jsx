@@ -97,7 +97,10 @@ const Signup = () => {
         <button type="submit" className={styles.submit}>Sign Up</button>
       </form>
 
-      <p>Already have an account? <span onClick={() => navigate("/login")}>Log In</span></p>
+      {/* ✅ Styled "Log In" for hover effect */}
+      <p className={styles.loginText}>
+        Already have an account? <span onClick={() => navigate("/login")}>Log In</span>
+      </p>
     </div>
   );
 };
