@@ -1,38 +1,45 @@
-import React from 'react'
-import './LoginSignup.css'
+import React from 'react';
+import styles from './LoginSignup.module.css'; // Importing CSS Module
 
 const LoginSignup = () => {
   return (
-    <div className='container'>
-        <div classname="header">
-            <div className="text">Sign Up</div>
-            <div className="underline"></div>
-        </div>
-        <div className="inputs">
-            <div className="input">
-                <i className="fa-solid fa-user"></i>
-                <input type="text" />
-            </div>
-        </div>
-        <div className="inputs">
-            <div className="input">
-                <i className="fa-solid fa-envelope"></i>
-                <input type="email" />
-            </div>
-        </div>
-        <div className="inputs">
-            <div className="input">
-                <i className="fa-solid fa-lock"></i>
-                <input type="password" />
-            </div>
-        </div>
-        <div className="forgot-password">forgot password? <span>Click Here!</span></div>
-        <div className="submit-container">
-            <div className="submit">Sign Up</div>
-            <div className="submit">Login</div>
-        </div>
-    </div>
-  )
-}
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <div className={styles.text}>Sign Up</div>
+        <div className={styles.underline}></div>
+      </div>
 
-export default LoginSignup
+      <div className={styles.inputs}>
+        <div className={styles.input}>
+          <i className="fa-solid fa-user"></i>
+          <input type="text" placeholder="Enter your username" />
+        </div>
+      </div>
+
+      <div className={styles.inputs}>
+        <div className={styles.input}>
+          <i className="fa-solid fa-envelope"></i>
+          <input type="email" placeholder="Enter your email" />
+        </div>
+      </div>
+
+      <div className={styles.inputs}>
+        <div className={styles.input}>
+          <i className="fa-solid fa-lock"></i>
+          <input type="password" placeholder="Enter your password" />
+        </div>
+      </div>
+
+      <div className={styles.forgotPassword}>
+        Forgot password? <span>Click Here!</span>
+      </div>
+
+      <div className={styles.submitContainer}>
+        <div className={styles.submit}>Sign Up</div>
+        <div className={styles.submit}>Login</div>
+      </div>
+    </div>
+  );
+};
+
+export default LoginSignup;

@@ -1,0 +1,99 @@
+/* Homepage Wrapper */
+.homepage {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  color: #39ff14; /* Neon green text */
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 15px 30px; /* Ensures space on both sides */
+  background-color: black;
+  box-shadow: 0px 4px 6px rgba(0, 255, 0, 0.2);
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box; /* Prevents overflow */
+}
+
+/* Logo */
+.logo {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #39ff14;
+}
+
+/* Navigation Buttons */
+.navButtons {
+  display: flex;
+  gap: 10px;
+  padding-right: 20px; /* Ensures space from the right edge */
+}
+
+/* Button Styles (Shared) */
+.loginBtn, .signupBtn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+  max-width: 150px; /* Prevents it from expanding too much */
+  white-space: nowrap; /* Keeps text in one line */
+}
+
+/* Log In Button */
+.loginBtn {
+  background-color: #39ff14;
+  color: black;
+  border: none;
+}
+
+.loginBtn:hover {
+  background-color: black;
+  color: #39ff14;
+  border: 2px solid #39ff14;
+}
+
+/* Sign Up Button */
+.signupBtn {
+  background-color: transparent;
+  color: #39ff14;
+  border: 2px solid #39ff14;
+}
+
+.signupBtn:hover {
+  background-color: #39ff14;
+  color: black;
+}
+
+/* Centered Content */
+.centerContent {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: 80px; /* Fix to push content below navbar */
+}
+
+/* Main Title (Glowing Effect) */
+.mainTitle {
+  font-size: 5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* Neon Glow Effect */
+.glow {
+  text-shadow: 
+    0 0 10px #39ff14, 
+    0 0 20px #39ff14, 
+    0 0 40px #39ff14, 
+    0 0 80px #39ff14;
+}

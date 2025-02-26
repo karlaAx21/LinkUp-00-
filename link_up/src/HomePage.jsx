@@ -1,25 +1,28 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "./style.css";
+import styles from "./style.module.css"; // Import CSS Module
 
 const HomePage = () => {
   const navigate = useNavigate(); // Hook for navigation
 
   return (
-    <div className="homepage">
-      <nav className="navbar">
-        <h1 className="logo">LinkUp</h1>
-        <div className="nav-buttons">
-          <button className="login-btn" onClick={() => navigate("/login-signup")}>
+    <div className={styles.homepage}>
+      {/* Navbar */}
+      <nav className={styles.navbar}>
+        <h1 className={styles.logo}>LinkUp</h1>
+        <div className={styles.navButtons}>
+          <button className={styles.loginBtn} onClick={() => navigate("/login-signup")}>
             Log In
           </button>
-          <button className="signup-btn" onClick={() => navigate("/login-signup")}>
+          <button className={styles.signupBtn} onClick={() => navigate("/login-signup")}>
             Sign Up
           </button>
         </div>
       </nav>
-      <div className="center-content">
-        <h1 className="main-title glow">LinkUp</h1>
+
+      {/* Centered Content */}
+      <div className={styles.centerContent}>
+        <h1 className={`${styles.mainTitle} ${styles.glow}`}>LinkUp</h1>
       </div>
     </div>
   );

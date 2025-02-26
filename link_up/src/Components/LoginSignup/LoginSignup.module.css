@@ -1,23 +1,19 @@
-/* General Styles */
-body {
-    background: linear-gradient(135deg, #1e1e2f, #3a3a50);
-    font-family: 'Poppins', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-  }
-  
-  /* Form Container */
-  .container {
-    background-color: #222;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
-    text-align: center;
-    width: 350px;
-  }
+/* Form Container */
+.container {
+  background-color: #222;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  width: 350px;
+
+  /* Centering */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
   
   /* Form Header */
   .header .text {
@@ -91,7 +87,8 @@ body {
   .submit {
     background: #39ff14;
     color: black;
-    padding: 12px 20px;
+    padding: 15px 20px;
+    margin: 20px;
     border-radius: 5px;
     font-size: 16px;
     font-weight: bold;
@@ -100,6 +97,6 @@ body {
   }
   
   .submit:hover {
-    background: #32e013;
+    background: #159fd6;
   }
   
