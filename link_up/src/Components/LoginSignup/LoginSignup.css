@@ -1,0 +1,105 @@
+/* General Styles */
+body {
+    background: linear-gradient(135deg, #1e1e2f, #3a3a50);
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  /* Form Container */
+  .container {
+    background-color: #222;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    width: 350px;
+  }
+  
+  /* Form Header */
+  .header .text {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+  }
+  
+  .header .underline {
+    width: 60px;
+    height: 4px;
+    background-color: #39ff14;
+    margin: 10px auto;
+    border-radius: 2px;
+  }
+  
+  /* Input Fields */
+  .input {
+    display: flex;
+    align-items: center;
+    background: #333;
+    padding: 12px;
+    border-radius: 5px;
+    margin: 15px 0;
+  }
+  
+  .input i {
+    color: #39ff14;
+    font-size: 18px;
+    margin-right: 10px;
+  }
+  
+  .input input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 16px;
+    padding: 5px;
+  }
+  
+  .input input::placeholder {
+    color: #bbb;
+  }
+  
+  /* Forgot Password */
+  .forgot-password {
+    font-size: 14px;
+    color: white;
+    margin-top: 10px;
+  }
+  
+  .forgot-password span {
+    color: #39ff14;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .forgot-password span:hover {
+    text-decoration: underline;
+  }
+  
+  /* Submit Buttons */
+  .submit-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .submit {
+    background: #39ff14;
+    color: black;
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+  }
+  
+  .submit:hover {
+    background: #32e013;
+  }
+  
