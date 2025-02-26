@@ -11,10 +11,10 @@ const HomePage = () => {
       <nav className={styles.navbar}>
         <h1 className={styles.logo}>LinkUp</h1>
         <div className={styles.navButtons}>
-          <button className={styles.loginBtn} onClick={() => navigate("/login-signup")}>
+          <button className={styles.loginBtn} onClick={() => navigate("/login")}>
             Log In
           </button>
-          <button className={styles.signupBtn} onClick={() => navigate("/login-signup")}>
+          <button className={styles.signupBtn} onClick={() => navigate("/signup")}>
             Sign Up
           </button>
         </div>
