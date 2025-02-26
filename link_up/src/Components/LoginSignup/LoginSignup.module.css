@@ -7,7 +7,6 @@
   text-align: center;
   width: 350px;
 
-  /* Centering */
   position: absolute;
   top: 50%;
   left: 50%;
@@ -15,7 +14,6 @@
 }
 
   
-  /* Form Header */
   .header .text {
     font-size: 24px;
     font-weight: bold;
@@ -30,7 +28,6 @@
     border-radius: 2px;
   }
   
-  /* Input Fields */
   .input {
     display: flex;
     align-items: center;
@@ -60,7 +57,6 @@
     color: #bbb;
   }
   
-  /* Forgot Password */
   .forgot-password {
     font-size: 14px;
     color: white;
@@ -77,7 +73,6 @@
     text-decoration: underline;
   }
   
-  /* Submit Buttons */
   .submit-container {
     display: flex;
     justify-content: space-between;
@@ -98,5 +93,10 @@
   
   .submit:hover {
     background: #159fd6;
+  }
+  .error {
+    color: red;
+    font-size: 14px;
+    margin-bottom: 10px;
   }
   

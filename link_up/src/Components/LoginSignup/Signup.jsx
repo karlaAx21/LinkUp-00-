@@ -13,43 +13,62 @@ const Signup = () => {
     confirmPassword: "",
   });
 
+  const [error, setError] = useState("");
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    for (const key in formData) {
+      if (formData[key].trim() === "") {
+        setError("All fields are required.");
+        return;
+      }
+    }
+
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      setError("Passwords do not match.");
       return;
     }
 
     try {
-      const response = await fetch("https://67bea66cb2320ee05010d2b4.mockapi.io/linkup/api/Users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          username: formData.username,
-          email: formData.email,
-          password: formData.password,
-          createdAt: new Date().toISOString(),
-        }),
-      });
+      const response = await fetch(
+        "https://67bea66cb2320ee05010d2b4.mockapi.io/linkup/api/Users",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            username: formData.username,
+            email: formData.email,
+            password: formData.password,
+            createdAt: new Date().toISOString(),
+          }),
+        }
+      );
 
-      const data = await response.json();
-      alert("Sign-up successful!");
-      navigate("/login"); // Redirect to login page after sign-up
+      if (!response.ok) {
+        throw new Error("Failed to create account. Please try again.");
+      }
+
+      alert("Sign-up successful! Redirecting to Log In...");
+      setTimeout(() => navigate("/login"), 1000);
     } catch (error) {
       console.error("Error signing up:", error);
+      setError("Sign-up failed. Please try again.");
     }
   };
 
   return (
     <div className={styles.container}>
       <h2>Sign Up</h2>
+      {error && <p className={styles.error}>{error}</p>}
+
       <form onSubmit={handleSubmit}>
         <div className={styles.input}>
           <i className="fa-solid fa-user"></i>
@@ -77,6 +96,7 @@ const Signup = () => {
         </div>
         <button type="submit" className={styles.submit}>Sign Up</button>
       </form>
+
       <p>Already have an account? <span onClick={() => navigate("/login")}>Log In</span></p>
     </div>
   );

@@ -4,7 +4,7 @@ const Feed = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // ✅ Get the logged-in user from session storage
+    // Get the logged-in user from session storage
     const storedUser = sessionStorage.getItem("loggedInUser");
 
     if (storedUser) {

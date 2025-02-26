@@ -21,7 +21,10 @@ const Login = () => {
 
       if (user) {
         alert(`Welcome, ${user.username}!`);
-        navigate("/dashboard"); // Redirect to dashboard (or home)
+        
+        sessionStorage.setItem("loggedInUser", JSON.stringify(user));
+
+        navigate("/feed");
       } else {
         alert("Invalid username or password.");
       }
