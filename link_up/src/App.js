@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./HomePage";
 import Login from "./Components/LoginSignup/Login";
 import Signup from "./Components/LoginSignup/Signup";
-import Feed from "./Components/Feed/Feed";
+import FeedAndCreatePost from "./Components/Feed/Feed"; // Import the combined component
 
 function App() {
   return (
@@ -12,7 +12,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/feed" element={<Feed />} />
+        <Route path="/feed" element={<FeedAndCreatePost />} /> {/* Use the combined component */}
       </Routes>
     </Router>
   );
