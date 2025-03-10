@@ -9,7 +9,7 @@ const HomePage = () => {
     <div className={styles.homepage}>
       {/* Navbar */}
       <nav className={styles.navbar}>
-        <h1 className={styles.logo}>LinkUp</h1>
+        <h1 className={styles.logo}>L.U.</h1>
         <div className={styles.navButtons}>
           <button className={styles.loginBtn} onClick={() => navigate("/login")}>
             Log In
