@@ -16,12 +16,12 @@
 .title {
   font-size: 24px;
   font-weight: bold;
-  color: #333;
+  color: #2c3e50; /* Dark Gray-Blue */
 }
 
 .subText {
   font-size: 16px;
-  color: #555;
+  color: #4f6d7a; /* Muted Dark Mint */
   margin-bottom: 20px;
 }
 
@@ -36,7 +36,7 @@
 }
 
 .input i {
-  color: #1877f2;
+  color: #78c2ad; /* Mint Green */
   font-size: 18px;
   margin-right: 10px;
 }
@@ -51,24 +51,27 @@
 
 /* Buttons */
 .submit {
-  background: #1877f2;
+  background: #78c2ad; /* Mint Green */
   color: white;
   padding: 15px 20px;
   border-radius: 8px;
   font-size: 16px;
   cursor: pointer;
+  transition: all 0.3s ease-in-out;
 }
 
 .submit:hover {
-  background: #145db2;
+  background: #5aa693; /* Darker Mint */
 }
 
 /* Login & Signup Link */
 .loginText span {
-  color: #1877f2;
+  color: #78c2ad; /* Mint Green */
   cursor: pointer;
+  transition: all 0.3s ease-in-out;
 }
 
 .loginText span:hover {
   text-decoration: underline;
+  color: #5aa693; /* Darker Mint */
 }
