@@ -66,7 +66,9 @@ const Signup = () => {
 
   return (
     <div className={styles.container}>
-      <h2>Sign Up</h2>
+      <h2 className={styles.title}>Create an Account</h2>
+      <p className={styles.subText}>Join LinkUp today and connect with your friends</p>
+
       {error && <p className={styles.error}>{error}</p>}
 
       <form onSubmit={handleSubmit}>
@@ -97,10 +99,7 @@ const Signup = () => {
         <button type="submit" className={styles.submit}>Sign Up</button>
       </form>
 
-      {/* ✅ Styled "Log In" for hover effect */}
-      <p className={styles.loginText}>
-        Already have an account? <span onClick={() => navigate("/login")}>Log In</span>
-      </p>
+      <p className={styles.loginText}>Already have an account? <span onClick={() => navigate("/login")}>Log In</span></p>
     </div>
   );
 };

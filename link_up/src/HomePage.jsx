@@ -9,7 +9,7 @@ const HomePage = () => {
     <div className={styles.homepage}>
       {/* Navbar */}
       <nav className={styles.navbar}>
-        <h1 className={styles.logo}>L.U.</h1>
+        <h1 className={styles.logo}>LinkUp</h1>
         <div className={styles.navButtons}>
           <button className={styles.loginBtn} onClick={() => navigate("/login")}>
             Log In
@@ -22,7 +22,15 @@ const HomePage = () => {
 
       {/* Centered Content */}
       <div className={styles.centerContent}>
-        <h1 className={`${styles.mainTitle} ${styles.glow}`}>LinkUp</h1>
+        <div className={styles.card}>
+          <h1 className={styles.mainTitle}>Connect. Share. Grow.</h1>
+          <p className={styles.subText}>
+            Join LinkUp to meet new people, share your moments, and build your community.
+          </p>
+          <button className={styles.getStartedBtn} onClick={() => navigate("/signup")}>
+            Get Started
+          </button>
+        </div>
       </div>
     </div>
   );

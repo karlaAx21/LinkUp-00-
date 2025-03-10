@@ -3,9 +3,9 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  color: white; /* Neon green text */
-  font-family:Verdana, Geneva, Tahoma, sans-serif;
-
+  font-family: 'Arial', sans-serif;
+  background: #f0f2f5; /* Light Gray */
+  color: #333; /* Dark Gray Text */
 }
 
 /* Navbar */
@@ -14,64 +14,58 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 15px 30px; /* Ensures space on both sides */
-  background-color: rgb(122, 150, 122);
-  box-shadow: 0px 4px 6px rgba(0, 255, 0, 0.2);
-  position: absolute;
+  padding: 15px 30px;
+  background-color: white;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
   top: 0;
   left: 0;
-  box-sizing: border-box; /* Prevents overflow */
+  box-sizing: border-box;
+  z-index: 1000;
 }
 
 /* Logo */
 .logo {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: bold;
-  color: white;
+  color: #1877f2;
 }
 
 /* Navigation Buttons */
 .navButtons {
   display: flex;
   gap: 10px;
-  padding-right: 20px; /* Ensures space from the right edge */
 }
 
-/* Button Styles (Shared) */
+/* Button Styles */
 .loginBtn, .signupBtn {
   padding: 10px 20px;
   font-size: 1rem;
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s ease-in-out;
-  max-width: 150px; /* Prevents it from expanding too much */
-  white-space: nowrap; /* Keeps text in one line */
-}
-
-/* Log In Button */
-.loginBtn {
-  background-color: #39ff14;
-  color: black;
+  transition: all 0.3s ease-in-out;
   border: none;
 }
 
-.loginBtn:hover {
-  background-color: black;
-  color: #39ff14;
-  border: 2px solid #39ff14;
+.loginBtn {
+  background-color: #1877f2;
+  color: white;
 }
 
-/* Sign Up Button */
+.loginBtn:hover {
+  background-color: #145db2;
+}
+
 .signupBtn {
-  background-color: transparent;
-  color: #39ff14;
-  border: 2px solid #39ff14;
+  background-color: #ffffff;
+  color: #1877f2;
+  border: 2px solid #1877f2;
 }
 
 .signupBtn:hover {
-  background-color: #39ff14;
-  color: black;
+  background-color: #1877f2;
+  color: white;
 }
 
 /* Centered Content */
@@ -80,21 +74,31 @@
   display: flex;
   justify-content: center;
   text-align: center;
-  margin-top: 80px; /* Fix to push content below navbar */
+  margin-top: 100px;
+  padding: 20px;
 }
 
-/* Main Title (Glowing Effect) */
+/* Main Title */
 .mainTitle {
-  font-size: 5rem;
-  font-weight: 800;
-  text-transform: uppercase;
+  font-size: 4rem;
+  font-weight: bold;
+  color: #333;
 }
 
-/* Neon Glow Effect */
-.glow {
-  text-shadow: 
-    0 0 10px white, 
-    0 0 20px white, 
-    0 0 40px #39ff14, 
-    0 0 80px #39ff14;
+/* Subtext */
+.subText {
+  font-size: 1.2rem;
+  color: #555;
+  margin-top: 10px;
+}
+
+/* Card-like sections */
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 500px;
+  text-align: center;
 }

@@ -1,43 +1,42 @@
 /* Form Container */
 .container {
-  background-color: #222;
+  background-color: white;
   padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
-  width: 350px;
-
+  width: 400px;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
-.header .text {
+/* Form Titles */
+.title {
   font-size: 24px;
   font-weight: bold;
-  color: white;
+  color: #333;
 }
 
-.header .underline {
-  width: 60px;
-  height: 4px;
-  background-color: #39ff14;
-  margin: 10px auto;
-  border-radius: 2px;
+.subText {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 20px;
 }
 
+/* Input Styles */
 .input {
   display: flex;
   align-items: center;
-  background: #333;
+  background: #f1f1f1;
   padding: 12px;
-  border-radius: 5px;
+  border-radius: 8px;
   margin: 15px 0;
 }
 
 .input i {
-  color: #39ff14;
+  color: #1877f2;
   font-size: 18px;
   margin-right: 10px;
 }
@@ -47,72 +46,29 @@
   background: none;
   border: none;
   outline: none;
-  color: white;
   font-size: 16px;
-  padding: 5px;
 }
 
-.input input::placeholder {
-  color: #bbb;
-}
-
-/* ✅ Fixed Forgot Password Styling */
-.forgotPassword {
-  font-size: 14px;
-  color: #bbb; /* Light gray text initially */
-  margin-top: 10px;
-  cursor: pointer; /* ✅ Makes it clickable */
-  font-weight: bold;
-  transition: color 0.3s ease-in-out;
-}
-
-.forgotPassword:hover {
-  text-decoration: underline; /* ✅ Adds underline effect */
-  color: #39ff14; /* ✅ Changes to neon green on hover */
-}
-
-.submit-container {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
+/* Buttons */
 .submit {
-  background: #39ff14;
-  color: black;
+  background: #1877f2;
+  color: white;
   padding: 15px 20px;
-  margin: 20px;
-  border-radius: 5px;
+  border-radius: 8px;
   font-size: 16px;
-  font-weight: bold;
   cursor: pointer;
-  transition: 0.3s ease-in-out;
 }
 
 .submit:hover {
-  background: #159fd6;
+  background: #145db2;
 }
 
-.error {
-  color: red;
-  font-size: 14px;
-  margin-bottom: 10px;
-}
-
-.loginText {
-  font-size: 14px;
-  color: #bbb;
-  margin-top: 10px;
-  font-weight: bold;
-}
-
+/* Login & Signup Link */
 .loginText span {
-  color: #39ff14;
+  color: #1877f2;
   cursor: pointer;
-  transition: color 0.3s ease-in-out;
 }
 
 .loginText span:hover {
   text-decoration: underline;
-  color: #32e013;
 }

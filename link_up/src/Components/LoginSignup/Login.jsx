@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ username: "", password: "" });
-  const [error, setError] = useState(""); // ✅ State for handling errors
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,7 +28,7 @@ const Login = () => {
       const user = users.find((u) => u.username === formData.username && u.password === formData.password);
 
       if (user) {
-        sessionStorage.setItem("loggedInUser", JSON.stringify(user)); // ✅ Store logged-in user session
+        sessionStorage.setItem("loggedInUser", JSON.stringify(user));
         navigate("/feed");
       } else {
         setError("Invalid username or password.");
@@ -41,8 +41,9 @@ const Login = () => {
 
   return (
     <div className={styles.container}>
-      <h2>Log In</h2>
-      {/* ✅ Display error messages */}
+      <h2 className={styles.title}>Welcome Back</h2>
+      <p className={styles.subText}>Log in to connect with your friends</p>
+
       {error && <p className={styles.error}>{error}</p>}
 
       <form onSubmit={handleSubmit}>
@@ -55,7 +56,6 @@ const Login = () => {
           <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
         </div>
 
-        {/* ✅ Forgot Password section */}
         <p className={styles.forgotPassword} onClick={() => alert("Forgot Password clicked!")}>
           Forgot Password?
         </p>
@@ -63,7 +63,7 @@ const Login = () => {
         <button type="submit" className={styles.submit}>Log In</button>
       </form>
 
-      <p>Don't have an account? <span onClick={() => navigate("/signup")}>Sign Up</span></p>
+      <p className={styles.loginText}>Don't have an account? <span onClick={() => navigate("/signup")}>Sign Up</span></p>
     </div>
   );
 };
