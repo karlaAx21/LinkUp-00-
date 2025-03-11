@@ -4,18 +4,18 @@ import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [formData, setFormData] = useState({ Username: "", Password: "" });
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(""); // Clear errors when user starts typing
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.username || !formData.password) {
+    if (!formData.Username || !formData.Password) {
       setError("Please enter both username and password.");
       return;
     }
@@ -25,7 +25,8 @@ const Login = () => {
       if (!response.ok) throw new Error("Failed to fetch user data.");
 
       const users = await response.json();
-      const user = users.find((u) => u.username === formData.username && u.password === formData.password);
+
+      const user = users.find((u) => u.Username === formData.Username && u.Password === formData.Password);
 
       if (user) {
         sessionStorage.setItem("loggedInUser", JSON.stringify(user));
@@ -49,11 +50,25 @@ const Login = () => {
       <form onSubmit={handleSubmit}>
         <div className={styles.input}>
           <i className="fa-solid fa-user"></i>
-          <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} required />
+          <input
+            type="text"
+            name="Username"
+            placeholder="Username"
+            value={formData.Username}
+            onChange={handleChange}
+            required
+          />
         </div>
         <div className={styles.input}>
           <i className="fa-solid fa-lock"></i>
-          <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
+          <input
+            type="password"
+            name="Password"
+            placeholder="Password"
+            value={formData.Password}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <p className={styles.forgotPassword} onClick={() => alert("Forgot Password clicked!")}>
@@ -63,7 +78,9 @@ const Login = () => {
         <button type="submit" className={styles.submit}>Log In</button>
       </form>
 
-      <p className={styles.loginText}>Don't have an account? <span onClick={() => navigate("/signup")}>Sign Up</span></p>
+      <p className={styles.loginText}>
+        Don't have an account? <span onClick={() => navigate("/signup")}>Sign Up</span>
+      </p>
     </div>
   );
 };

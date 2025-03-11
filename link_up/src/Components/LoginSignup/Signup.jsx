@@ -17,7 +17,7 @@ const Signup = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value.trim() });
-    setError(""); // Clear errors when user starts typing
+    setError("");
   };
 
   const handleSubmit = async (e) => {
@@ -51,7 +51,7 @@ const Signup = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            FirstName: formData.firstName, // Standardized capitalization
+            FirstName: formData.firstName,
             LastName: formData.lastName,
             Username: formData.username,
             email: formData.email,
