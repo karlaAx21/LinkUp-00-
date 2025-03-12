@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./style.module.css"; // Import CSS Module
-import logo from "./Components/images/LinkLogo.webp"; // Adjust file type if necessary
+import styles from "./style.module.css";
+import logo from "./Components/images/LinkLogo.webp";
 
 const HomePage = () => {
   const navigate = useNavigate();

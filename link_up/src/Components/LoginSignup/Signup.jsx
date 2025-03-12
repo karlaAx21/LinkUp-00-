@@ -74,88 +74,92 @@ const Signup = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>Create an Account</h2>
-      <p className={styles.subText}>Join LinkUp today and connect with your friends.</p>
+    <div className={styles.wrapper}>
+      {/* Signup Form Section */}
+      <div className={styles.container}>
+        <h2 className={styles.title}>Create an Account</h2>
+        <p className={styles.subText}>Join LinkUp today and connect with your friends.</p>
+  
+        {error && <p className={styles.error}>{error}</p>}
+  
+        <form onSubmit={handleSubmit}>
+          <div className={styles.input}>
+            <i className="fa-solid fa-user"></i>
+            <input
+              type="text"
+              name="firstName"
+              placeholder="First Name"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className={styles.input}>
+            <i className="fa-solid fa-user"></i>
+            <input
+              type="text"
+              name="lastName"
+              placeholder="Last Name"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className={styles.input}>
+            <i className="fa-solid fa-user"></i>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className={styles.input}>
+            <i className="fa-solid fa-envelope"></i>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className={styles.input}>
+            <i className="fa-solid fa-lock"></i>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className={styles.input}>
+            <i className="fa-solid fa-lock"></i>
+            <input
+              type="password"
+              name="confirmPassword"
+              placeholder="Confirm Password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+          </div>
+  
+          <button type="submit" className={styles.submit}>Sign Up</button>
+        </form>
+  
+        <p className={styles.loginText}>
+          Already have an account? <span onClick={() => navigate("/login")}>Log In</span>
+        </p>
+      </div>
 
-      {error && <p className={styles.error}>{error}</p>}
-
-      <form onSubmit={handleSubmit}>
-        <div className={styles.input}>
-          <i className="fa-solid fa-user"></i>
-          <input
-            type="text"
-            name="firstName"
-            placeholder="First Name"
-            value={formData.firstName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className={styles.input}>
-          <i className="fa-solid fa-user"></i>
-          <input
-            type="text"
-            name="lastName"
-            placeholder="Last Name"
-            value={formData.lastName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className={styles.input}>
-          <i className="fa-solid fa-user"></i>
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className={styles.input}>
-          <i className="fa-solid fa-envelope"></i>
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className={styles.input}>
-          <i className="fa-solid fa-lock"></i>
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className={styles.input}>
-          <i className="fa-solid fa-lock"></i>
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <button type="submit" className={styles.submit}>Sign Up</button>
-      </form>
-
-      <p className={styles.loginText}>
-        Already have an account? <span onClick={() => navigate("/login")}>Log In</span>
-      </p>
     </div>
-  );
+  );  
 };
 
 export default Signup;

@@ -29,7 +29,14 @@ const Login = () => {
       const user = users.find((u) => u.Username === formData.Username && u.Password === formData.Password);
 
       if (user) {
+        // ✅ Store user ID and info in localStorage
+        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userData", JSON.stringify(user));
+
+        // ✅ Also store in sessionStorage (optional)
         sessionStorage.setItem("loggedInUser", JSON.stringify(user));
+
+        alert("Login Successful!");
         navigate("/feed");
       } else {
         setError("Invalid username or password.");
