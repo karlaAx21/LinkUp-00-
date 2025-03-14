@@ -1,0 +1,89 @@
+/* Sidebar Container */
+.sidebar {
+    width: 200px;
+    height: 100vh;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: fixed;
+    left: 0;
+    top: 0;
+  }
+  
+  /* Logo */
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 20px;
+  }
+  
+  /* Profile Section */
+  .profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .profilePic {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #78c2ad; /* Mint Green Border */
+  }
+  
+  .username {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-top: 8px;
+  }
+  
+  .userHandle {
+    font-size: 14px;
+    color: #4f6d7a;
+  }
+  
+  /* Navigation Menu */
+  .navList {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+  }
+  
+  .navItem {
+    display: block;
+    text-decoration: none;
+    color: #4f6d7a;
+    font-size: 18px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.3s;
+  }
+  
+  .navItem:hover {
+    background-color: #78c2ad; /* Mint Green */
+    color: white;
+  }
+  
+  /* Logout Button */
+  .logout {
+    margin-top: 20px;
+    background-color: #78c2ad;
+    color: white;
+    padding: 10px;
+    width: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .logout:hover {
+    background-color: #ff5252;
+  }
+  
