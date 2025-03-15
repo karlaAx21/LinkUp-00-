@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link} from "react-router-dom";
 import styles from "./Sidebar.module.css";
-import defaultProfilePic from "../images/profile.png";
 
 const Sidebar = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // ✅ Get the current user's ID from localStorage
+    // Get the current user's ID from localStorage
     const userId = localStorage.getItem("userId");
 
     if (!userId) {
@@ -15,28 +14,38 @@ const Sidebar = () => {
       return;
     }
 
-    // ✅ Fetch user data based on logged-in user ID
+    // Fetch user data based on logged-in user ID
     fetch(`https://67bea66cb2320ee05010d2b4.mockapi.io/linkup/api/Users/${userId}`)
       .then((res) => res.json())
       .then((data) => setUser(data))
       .catch((err) => console.error("Failed to fetch user", err));
   }, []);
-
+/*{"./logo512.png"}*/
   return (
     <nav className={styles.sidebar}>
-      {/* App Logo & Name */}
-      <h1 className={styles.logo}>LinkUp</h1>
+  {/* App Logo & Name */}
+  <h1 className={styles.logo}>LinkUp</h1>
 
-      {/* User Profile Section */}
-      <div className={styles.profile}>
-        <img
-          src={user?.ProfilePic || defaultProfilePic}
-          alt="User"
-          className={styles.profilePic}
-        />
-        <p className={styles.username}>{user?.FirstName} {user?.LastName}</p>
-        <span className={styles.userHandle}>@{user?.Username}</span>
-      </div>
+  {/* User Profile Section */}
+  <Link to={`/profile/${user?.Username}`} className={styles.profile}>
+
+    <img
+      src={"./logo512.png"}
+      alt="User"
+      className={styles.profilePic}
+    />
+    <Link 
+      to={`/profile/${user?.FirstName}-${user?.LastName}`} 
+      className={styles.username}>
+      {user?.FirstName} {user?.LastName}
+    </Link>
+    {user?.Username && (
+       <Link to={`/profile/${user.Username}`} className={styles.userHandle}>
+          <span>@{user.Username}</span>
+       </Link>
+    )}
+
+  </Link>
 
       {/* Navigation Menu */}
       <ul className={styles.navList}>
@@ -55,7 +64,7 @@ const Sidebar = () => {
           window.location.href = "/login"; // Redirect after logout
         }}
       >
-        🚪 Logout
+        Logout
       </button>
     </nav>
   );
