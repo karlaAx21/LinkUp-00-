@@ -1,35 +1,31 @@
-import React from "react";
+import React, { useContext, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import styles from "./Profile.module.css";
-const Profile = () => {
+import { UserContext } from "../../contextProvider";
+import FavoritesMenu from "./FavoritesMenu"; 
+
+const Profile = ({ following }) => {
+  const { user } = useContext(UserContext);
+  const [customHTML, setCustomHTML] = useState("");
+  useEffect(() => {
+    const savedHTML = localStorage.getItem("customHTML");
+    if (savedHTML) {
+      setCustomHTML(savedHTML);
+    } else {
+      setCustomHTML("<p>Hello! Nice to meet you!</p>"); // Default message
+    }
+  }, []);
   return (
-    <div style={{
-      textAlign: "center",
-      padding: "20px"
-    }}>
-      <h1>Profile Page</h1>
-      <p>If you see this, you're on the correct page.</p>
-
-      <button onClick={() => alert("Button Clicked!")}>
-        Click Me
-      </button>
-
-      <div style={{
-        marginTop: "20px"
-      }}>
-        <h3>Test Image Below:</h3>
-        <img 
-          src="https://via.placeholder.com/200" 
-          alt="Test Image" 
-          style={{
-            border: "2px solid red",
-            width: "200px",
-            height: "200px"
-          }}
-        />
+    <div>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+      {user?.Username}
+      </h1>
+      <div className="customContentAboutMe">
+        <div dangerouslySetInnerHTML={{ __html: customHTML }} />
       </div>
+      <FavoritesMenu following={following} />
     </div>
   );
 };
 
 export default Profile;
-
