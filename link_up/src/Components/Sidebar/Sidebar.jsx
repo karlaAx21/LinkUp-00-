@@ -1,32 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { NavLink, Link} from "react-router-dom";
 import styles from "./Sidebar.module.css";
+import { UserContext } from "../../contextProvider";
 
 const Sidebar = () => {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    
-    const userId = localStorage.getItem("userId");
-
-    if (!userId) {
-      console.error("No user logged in.");
-      return;
-    }
-
-
-    fetch(`https://67bea66cb2320ee05010d2b4.mockapi.io/linkup/api/Users/${userId}`)
-      .then((res) => res.json())
-      .then((data) => setUser(data))
-      .catch((err) => console.error("Failed to fetch user", err));
-  }, []);
+  const { user } = useContext(UserContext);
 
   return (
     <nav className={styles.sidebar}>
   
   <h1 className={styles.logo}>LinkUp</h1>
 
-  
   <Link to={`/profile/${user?.Username}`} className={styles.profile}>
 
     <img
@@ -44,10 +28,7 @@ const Sidebar = () => {
           <span>@{user.Username}</span>
        </Link>
     )}
-
   </Link>
-
-      
       <ul className={styles.navList}>
         <li><NavLink to="/" className={styles.navItem}>🏠 Home</NavLink></li>
         <li><NavLink to="/explore" className={styles.navItem}>🔍 Explore</NavLink></li>
@@ -55,8 +36,6 @@ const Sidebar = () => {
         <li><NavLink to="/saved" className={styles.navItem}>📌 Saved</NavLink></li>
         <li><NavLink to="/create-post" className={styles.navItem}>➕ Create Post</NavLink></li>
       </ul>
-
-    
       <button
         className={styles.logout}
         onClick={() => {
