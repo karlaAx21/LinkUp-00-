@@ -21,7 +21,7 @@
 
 .placeholderImage {
   width: 100%;
-  max-width: 600px; /* Limits how wide it can go */
+  max-width: 800px; /* Limits how wide it can go */
   height: auto;
   background: #eaeaea;
   border-radius: 20px;
