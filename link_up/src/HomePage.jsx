@@ -6,7 +6,7 @@ import { FaComments, FaUserFriends, FaCompass } from "react-icons/fa";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const socialImg = "/images/social.jpg";
+  const socialImg = "/social.jpg";
 
   return (
     <div className={`container-fluid ${styles.homepage}`}>
