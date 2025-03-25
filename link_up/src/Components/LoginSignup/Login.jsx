@@ -16,78 +16,75 @@ const Login = () => {
     e.preventDefault();
 
     if (!formData.Username || !formData.Password) {
-      setError("Please enter both username and password.");
+      setError("Please enter both email and password.");
       return;
     }
 
     try {
-      const response = await fetch("https://67bea66cb2320ee05010d2b4.mockapi.io/linkup/api/Users");
-      if (!response.ok) throw new Error("Failed to fetch user data.");
+      const res = await fetch("https://67bea66cb2320ee05010d2b4.mockapi.io/linkup/api/Users");
+      const users = await res.json();
 
-      const users = await response.json();
-
-      const user = users.find((u) => u.Username === formData.Username && u.Password === formData.Password);
+      const user = users.find(
+        (u) => u.Username === formData.Username && u.Password === formData.Password
+      );
 
       if (user) {
-        // ✅ Store user ID and info in localStorage
-        localStorage.setItem("userId", user.id);
-        localStorage.setItem("userData", JSON.stringify(user));
-
-        // ✅ Also store in sessionStorage (optional)
-        sessionStorage.setItem("loggedInUser", JSON.stringify(user));
-
-        alert("Login Successful!");
+        localStorage.setItem("currentUser", JSON.stringify(user));
         navigate("/feed");
       } else {
-        setError("Invalid username or password.");
+        setError("Invalid credentials.");
       }
-    } catch (error) {
-      console.error("Error logging in:", error);
+    } catch (err) {
       setError("Something went wrong. Please try again.");
     }
   };
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>Welcome Back</h2>
-      <p className={styles.subText}>Log in to connect with your friends</p>
+    <div className={styles.authPage}>
+      <div className={styles.authBox}>
+        <h2 className={styles.authTitle}>Login to LinkUp</h2>
+        <p className={styles.authSubtitle}>Enter your credentials to access your account</p>
 
-      {error && <p className={styles.error}>{error}</p>}
-
-      <form onSubmit={handleSubmit}>
-        <div className={styles.input}>
-          <i className="fa-solid fa-user"></i>
+        <form onSubmit={handleSubmit}>
+          <label className={styles.authLabel}>Username</label>
           <input
+            className={styles.authInput}
             type="text"
             name="Username"
-            placeholder="Username"
             value={formData.Username}
+            placeholder="name@example.com"
             onChange={handleChange}
             required
           />
-        </div>
-        <div className={styles.input}>
-          <i className="fa-solid fa-lock"></i>
+
+          <div className={styles.authPasswordRow}>
+            <label className={styles.authLabel}>Password</label>
+            <span className={styles.forgotPassword}>Forgot password?</span>
+          </div>
           <input
+            className={styles.authInput}
             type="password"
             name="Password"
-            placeholder="Password"
             value={formData.Password}
+            placeholder="••••••••"
             onChange={handleChange}
             required
           />
+
+          {error && <div className={styles.authError}>{error}</div>}
+
+          <button type="submit" className={styles.authButton}>
+            Login
+          </button>
+        </form>
+
+        <div className={styles.authFooter}>
+          <span>Don't have an account?</span>
+          <span className={styles.signupLink} onClick={() => navigate("/signup")}>
+            Sign up
+          </span>
         </div>
-
-        <p className={styles.forgotPassword} onClick={() => alert("Forgot Password clicked!")}>
-          Forgot Password?
-        </p>
-
-        <button type="submit" className={styles.submit}>Log In</button>
-      </form>
-
-      <p className={styles.loginText}>
-        Don't have an account? <span onClick={() => navigate("/signup")}>Sign Up</span>
-      </p>
+      </div>
     </div>
   );
 };

@@ -1,77 +1,93 @@
-/* Form Container */
-.container {
-  background-color: white;
+.authPage {
+  min-height: 100vh;
+  background-color: #e1f4f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.authBox {
+  background: #ffffff;
   padding: 40px;
   border-radius: 12px;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 400px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
-/* Form Titles */
-.title {
+.authTitle {
   font-size: 24px;
   font-weight: bold;
-  color: #2c3e50; /* Dark Gray-Blue */
+  margin-bottom: 8px;
+  color: #111;
 }
 
-.subText {
-  font-size: 16px;
-  color: #4f6d7a; /* Muted Dark Mint */
+.authSubtitle {
+  color: #6c757d;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.authLabel {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.authInput {
+  width: 100%;
+  padding: 10px 14px;
   margin-bottom: 20px;
-}
-
-/* Input Styles */
-.input {
-  display: flex;
-  align-items: center;
-  background: #f1f1f1;
-  padding: 12px;
   border-radius: 8px;
-  margin: 15px 0;
-}
-
-.input i {
-  color: #78c2ad; /* Mint Green */
-  font-size: 18px;
-  margin-right: 10px;
-}
-
-.input input {
-  flex: 1;
-  background: none;
-  border: none;
+  border: 1px solid #dee2e6;
   outline: none;
-  font-size: 16px;
+  font-size: 14px;
 }
 
-/* Buttons */
-.submit {
-  background: #78c2ad; /* Mint Green */
-  color: white;
-  padding: 15px 20px;
+.authPasswordRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forgotPassword {
+  font-size: 12px;
+  color: #1abc9c;
+  cursor: pointer;
+}
+
+.authButton {
+  background-color: #a8e6cf; /* mint green */
+  border: none;
+  padding: 12px;
+  width: 100%;
   border-radius: 8px;
-  font-size: 16px;
+  font-weight: 600;
+  color: #111;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
+  transition: background 0.3s ease;
 }
 
-.submit:hover {
-  background: #5aa693; /* Darker Mint */
+.authButton:hover {
+  background-color: #90d9c2;
 }
 
-/* Login & Signup Link */
-.loginText span {
-  color: #78c2ad; /* Mint Green */
+.authFooter {
+  margin-top: 16px;
+  font-size: 14px;
+  text-align: center;
+  color: #555;
+}
+
+.signupLink {
+  color: #1abc9c;
+  margin-left: 6px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
 }
 
-.loginText span:hover {
-  text-decoration: underline;
-  color: #5aa693; /* Darker Mint */
+.authError {
+  color: red;
+  font-size: 13px;
+  margin-bottom: 16px;
 }

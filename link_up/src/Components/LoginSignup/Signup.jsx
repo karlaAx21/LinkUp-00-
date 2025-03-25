@@ -23,7 +23,6 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Ensure all fields are filled
     for (const key in formData) {
       if (!formData[key]) {
         setError("All fields are required.");
@@ -31,14 +30,12 @@ const Signup = () => {
       }
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError("Please enter a valid email address.");
       return;
     }
 
-    // Ensure passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -74,92 +71,96 @@ const Signup = () => {
   };
 
   return (
-    <div className={styles.wrapper}>
-      {/* Signup Form Section */}
-      <div className={styles.container}>
-        <h2 className={styles.title}>Create an Account</h2>
-        <p className={styles.subText}>Join LinkUp today and connect with your friends.</p>
-  
-        {error && <p className={styles.error}>{error}</p>}
-  
-        <form onSubmit={handleSubmit}>
-          <div className={styles.input}>
-            <i className="fa-solid fa-user"></i>
-            <input
-              type="text"
-              name="firstName"
-              placeholder="First Name"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className={styles.input}>
-            <i className="fa-solid fa-user"></i>
-            <input
-              type="text"
-              name="lastName"
-              placeholder="Last Name"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className={styles.input}>
-            <i className="fa-solid fa-user"></i>
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className={styles.input}>
-            <i className="fa-solid fa-envelope"></i>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className={styles.input}>
-            <i className="fa-solid fa-lock"></i>
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className={styles.input}>
-            <i className="fa-solid fa-lock"></i>
-            <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-          </div>
-  
-          <button type="submit" className={styles.submit}>Sign Up</button>
-        </form>
-  
-        <p className={styles.loginText}>
-          Already have an account? <span onClick={() => navigate("/login")}>Log In</span>
+    <div className={styles.authPage}>
+      <div className={styles.authBox}>
+        <h2 className={styles.authTitle}>Create an account</h2>
+        <p className={styles.authSubtitle}>
+          Join LinkUp today and connect with your friends.
         </p>
-      </div>
 
+        {error && <div className={styles.authError}>{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <label className={styles.authLabel}>First Name</label>
+          <input
+            className={styles.authInput}
+            type="text"
+            name="firstName"
+            placeholder="John"
+            value={formData.firstName}
+            onChange={handleChange}
+            required
+          />
+
+          <label className={styles.authLabel}>Last Name</label>
+          <input
+            className={styles.authInput}
+            type="text"
+            name="lastName"
+            placeholder="Doe"
+            value={formData.lastName}
+            onChange={handleChange}
+            required
+          />
+
+          <label className={styles.authLabel}>Username</label>
+          <input
+            className={styles.authInput}
+            type="text"
+            name="username"
+            placeholder="johndoe123"
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
+
+          <label className={styles.authLabel}>Email</label>
+          <input
+            className={styles.authInput}
+            type="email"
+            name="email"
+            placeholder="name@example.com"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+
+          <label className={styles.authLabel}>Password</label>
+          <input
+            className={styles.authInput}
+            type="password"
+            name="password"
+            placeholder="••••••••"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+
+          <label className={styles.authLabel}>Confirm Password</label>
+          <input
+            className={styles.authInput}
+            type="password"
+            name="confirmPassword"
+            placeholder="••••••••"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+          />
+
+          <button type="submit" className={styles.authButton}>
+            Sign Up
+          </button>
+        </form>
+
+        <div className={styles.authFooter}>
+          Already have an account?
+          <span className={styles.signupLink} onClick={() => navigate("/login")}>
+            Log In
+          </span>
+        </div>
+      </div>
     </div>
-  );  
+  );
 };
 
 export default Signup;

@@ -1,122 +1,101 @@
-/* Sidebar Container */
 .sidebar {
-    width: 200px;
-    height: 100vh;
-    background-color: white;
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: fixed;
-    left: 0;
-    top: 0;
-  }
-  
-  /* Logo */
-  .logo {
-    font-size: 36px;
-    font-weight: bold;
-    color: #2c3e50;
-    margin-bottom: 20px;
-  }
-  
-  /* Profile Section */
-  .profile {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 10px;
-    padding-bottom: 10px
-  }
-  
-  .profilePic {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #78c2ad;
-     /* Mint Green Border */
-  }
-  .profilePic:hover {
-    transform: translateY(-1px) scale(1.03); /* Lift up and scale slightly */
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25); /* Stronger shadow for 3D effect */
-    cursor: pointer;
-  }
-  .profileLinks {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    border-radius: 12px;
-    transition: background-color 0.3s ease;
-  }
-  .profile:hover {
-    background-color: #d4bdfc; /* Darker purple on hover */
-    transform: scale(1.05); /* Slight enlargement */
-    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15); /* Soft shadow */
-    cursor: pointer;
-  }
-  .profile:hover .profilePic,
-  .profile:hover .username,
-  .profile:hover .userHandle {
-    cursor: pointer;
-  }
-  .username {
-    font-size: 18px;
-    font-weight: bold;
-    color: #2c3e50;
-    margin-top: 8px;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .userHandle {
-    font-size: 14px;
-    color: #4f6d7a;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-  }
+  width: 280px;
+  height: 100vh;
+  padding: 30px 20px;
+  background: #ffffff;
+  border-right: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
 
 
-  /* Navigation Menu */
-  .navList {
-    list-style: none;
-    padding: 0;
-    width: 100%;
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: #2ecc71;
+}
+.logo span {
+  color: #111;
+}
+
+.profileCard {
+  text-align: left;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.name {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.handle {
+  font-size: 13px;
+  color: #777;
+}
+
+.nav {
+  width: 100%;
+  flex-grow: 1;
+}
+
+.link {
+  display: block;
+  padding: 10px 0;
+  font-weight: 500;
+  color: #333;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: 0.2s ease;
+}
+
+.link:hover,
+.link.active {
+  color: #1abc9c;
+  font-weight: bold;
+  border-bottom: 1px solid #1abc9c;
+}
+
+.badge {
+  background-color: red;
+  color: white;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 20px;
+  margin-left: 6px;
+}
+
+.logout {
+  margin-top: auto;
+  width: 100%;
+  background: #eee;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.logout:hover {
+  background: #ddd;
+}
+
+@media (max-width: 992px) {
+  .feedWrapper {
+    flex-direction: column;
   }
-  
-  .navItem {
-    display: block;
-    text-decoration: none;
-    color: #4f6d7a;
-    font-size: 18px;
-    padding: 10px;
-    border-radius: 8px;
-    transition: background 0.3s;
+  .sidebarCard {
+    margin-top: 30px;
   }
-  
-  .navItem:hover {
-    background-color: #78c2ad; /* Mint Green */
-    color: white;
-  }
-  
-  /* Logout Button */
-  .logout {
-    margin-top: 20px;
-    background-color: #78c2ad;
-    color: white;
-    padding: 10px;
-    width: 100%;
-    border-radius: 8px;
-    cursor: pointer;
-    border: none;
-  }
-  
-  .logout:hover {
-    background-color: #ff5252;
-  }
-  
+}

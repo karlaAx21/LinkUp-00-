@@ -1,56 +1,26 @@
-/* Post Card Container */
-.postCard {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 15px;
-    margin-bottom: 15px;
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  .postCard:hover {
-    transform: scale(1.02);
-  }
-  
-  /* Username */
-  .username {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #78c2ad; /* Mint Green */
-    margin-bottom: 5px;
-  }
-  
-  /* Post Content */
-  .content {
-    font-size: 1rem;
-    color: #333;
-    margin-bottom: 10px;
-  }
-  
-  /* Post Image */
-  .postImage {
-    width: 100%;
-    border-radius: 8px;
-    margin-top: 10px;
-  }
-  
-  /* Actions Section */
-  .actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-  }
-  
-  .likeBtn, .commentBtn {
-    background: #78c2ad;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s ease-in-out;
-  }
-  
-  .likeBtn:hover, .commentBtn:hover {
-    background: #5aa693;
-  }
+.comment {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+
+.avatar {
+  background-color: #a8e6cf;
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  line-height: 40px;
+}
+
+.liked {
+  background-color: #ffccd5 !important;
+  color: #d6336c;
+}
+
+.likeBtn {
+  background-color: #e1f4f0;
+  color: #111;
+}

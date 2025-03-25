@@ -1,13 +1,12 @@
 .layout {
-    display: flex;
-    height: 100vh;
-  }
-  
-  /* Ensure main content shifts right */
-  .content {
-    flex: 1;
-    padding: 20px;
-    margin-left: 250px; /* Sidebar width */
-    overflow-y: auto;
-    min-width: calc(100vw - 200px); /* Ensures it stays in view */
-  }  
+  display: flex;
+  height: 100vh;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  margin-left: 10px; /* match sidebar width exactly */
+  max-width: calc(100vw - 240px); /* prevent overflow */
+  overflow-y: auto;
+}
