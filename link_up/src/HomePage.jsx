@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import styles from "./style.module.css";
 import { FaComments, FaUserFriends, FaCompass } from "react-icons/fa";
 
+
 const HomePage = () => {
   const navigate = useNavigate();
+  const socialImg = "/images/social.jpg";
 
   return (
     <div className={`container-fluid ${styles.homepage}`}>
@@ -23,7 +25,8 @@ const HomePage = () => {
           </button>
         </div>
         <div className="col-md-6 d-flex justify-content-center">
-          <div className={styles.placeholderImage}></div>
+          <div className={styles.placeholderImage}><img src={socialImg} alt="Social" />
+          </div>
         </div>
       </div>
 
