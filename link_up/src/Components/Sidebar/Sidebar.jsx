@@ -27,7 +27,7 @@ const Sidebar = () => {
         <NavLink to="/friends" className={styles.link}>Friends <span className={styles.badge}>2</span></NavLink>
         <NavLink to="/explore" className={styles.link}>Explore</NavLink>
         <NavLink to="/notifications" className={styles.link}>Notifications <span className={styles.badge}>5</span></NavLink>
-        <NavLink to={`/profile/${user?.Username}`} className={styles.link}>Profile</NavLink>
+        <NavLink to="/profile" className={styles.link}>Profile</NavLink>
       </nav>
 
       <button className={styles.logout} onClick={() => {
