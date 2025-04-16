@@ -41,14 +41,16 @@ const Login = () => {
         body: JSON.stringify(payload),
       });
 
-      if (res.ok) {
-        const user = await res.json();
-        localStorage.setItem("currentUser", JSON.stringify(user));
-        navigate("/feed");
-      } else {
-        const data = await res.json();
-        setError(data.error || "Login failed");
+      const user = await res.json();
+      console.log("Logged in user:", user); // Debugging log
+
+      if (!res.ok || !user.id) {
+        setError(user.error || "Login failed");
+        return;
       }
+
+      localStorage.setItem("currentUser", JSON.stringify(user));
+      navigate("/feed");
     } catch (err) {
       console.error("Login error:", err);
       setError("Something went wrong. Please try again.");
@@ -70,7 +72,8 @@ const Login = () => {
             type="text"
             name="Username"
             value={formData.Username}
-            placeholder="name@example.com"
+            placeholder="yourusername"
+            autoComplete="username"
             onChange={handleChange}
             required
           />
@@ -85,6 +88,7 @@ const Login = () => {
             name="Password"
             value={formData.Password}
             placeholder="••••••••"
+            autoComplete="current-password"
             onChange={handleChange}
             required
           />

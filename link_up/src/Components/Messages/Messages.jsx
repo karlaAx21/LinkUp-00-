@@ -1,4 +1,3 @@
-// ... existing imports ...
 import React, { useState, useEffect, useRef } from "react";
 import { Button, Modal, Form, InputGroup } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
@@ -13,6 +12,7 @@ const Messages = () => {
   const [messages, setMessages] = useState([]);
   const [friends, setFriends] = useState([]);
   const [chatPartners, setChatPartners] = useState([]);
+  const [allMessages, setAllMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const messagesEndRef = useRef(null);
@@ -20,17 +20,18 @@ const Messages = () => {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const location = useLocation();
 
+  // 🔒 Guard for unauthenticated access
+  if (!currentUser?.id) {
+    return <div className="p-5 text-center text-muted">Please log in to use the messaging system.</div>;
+  }
+
   useEffect(() => {
-    if (currentUser?.id) {
-      socket.emit("join", currentUser.id);
-    }
-  }, [currentUser?.id]);
+    socket.emit("join", currentUser.id);
+  }, [currentUser.id]);
 
   const fetchData = async () => {
-    if (!currentUser?.id) return;
-
     try {
-      const [usersRes, requestsRes, messagesRes] = await Promise.all([
+      const [usersRes, requestsRes, allMsgsRes] = await Promise.all([
         fetch(`${API}/users`),
         fetch(`${API}/friend_requests/${currentUser.id}`),
         fetch(`${API}/messages/${currentUser.id}/0`)
@@ -38,7 +39,8 @@ const Messages = () => {
 
       const allUsers = await usersRes.json();
       const allRequests = await requestsRes.json();
-      const allMessages = await messagesRes.json();
+      const allMsgs = await allMsgsRes.json();
+      setAllMessages(allMsgs);
 
       const acceptedFriendIds = allRequests
         .filter(r => r.status === "accepted")
@@ -48,7 +50,7 @@ const Messages = () => {
       setFriends(acceptedFriends);
 
       const partnerMap = {};
-      allMessages.forEach(msg => {
+      allMsgs.forEach(msg => {
         const partnerId = msg.senderId === currentUser.id ? msg.receiverId : msg.senderId;
         partnerMap[partnerId] = true;
       });
@@ -68,55 +70,58 @@ const Messages = () => {
 
   useEffect(() => {
     fetchData();
-  }, [currentUser?.id]);
+  }, [currentUser.id]);
 
   useEffect(() => {
-    if (!selectedContact || !currentUser?.id) return;
+    if (!selectedContact) return;
 
     fetch(`${API}/messages/${currentUser.id}/${selectedContact.id}`)
       .then(res => res.json())
       .then(setMessages)
       .catch(err => console.error("Failed to load messages:", err));
-  }, [selectedContact, currentUser?.id]);
+  }, [selectedContact]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   useEffect(() => {
-    socket.on("receiveMessage", (msg) => {
+    const handleReceiveMessage = (msg) => {
+      setAllMessages(prev => [...prev, msg]);
+
       if (
         selectedContact &&
         (msg.senderId === selectedContact.id || msg.receiverId === selectedContact.id)
       ) {
         setMessages((prev) => [...prev, msg]);
       }
-    });
+    };
 
-    socket.on("newConversation", () => {
-      fetchData();
-    });
+    const handleNewConversation = () => fetchData();
 
-    // ✅ Real-time read receipt handler
-    socket.on("messagesRead", ({ by }) => {
+    const handleMessagesRead = ({ by }) => {
       if (selectedContact?.id === by) {
-        setMessages((prev) =>
-          prev.map((msg) =>
+        setMessages(prev =>
+          prev.map(msg =>
             msg.senderId === currentUser.id ? { ...msg, isRead: 1 } : msg
           )
         );
       }
-    });
+    };
+
+    socket.on("receiveMessage", handleReceiveMessage);
+    socket.on("newConversation", handleNewConversation);
+    socket.on("messagesRead", handleMessagesRead);
 
     return () => {
-      socket.off("receiveMessage");
-      socket.off("newConversation");
-      socket.off("messagesRead");
+      socket.off("receiveMessage", handleReceiveMessage);
+      socket.off("newConversation", handleNewConversation);
+      socket.off("messagesRead", handleMessagesRead);
     };
   }, [selectedContact]);
 
   const sendMessage = () => {
-    if (!newMessage || !selectedContact || !currentUser) return;
+    if (!newMessage || !selectedContact) return;
 
     socket.emit("sendMessage", {
       senderId: currentUser.id,
@@ -152,17 +157,14 @@ const Messages = () => {
         }),
       });
 
-      // Notify sender their messages were read
       socket.emit("readMessages", {
         senderId: user.id,
         receiverId: currentUser.id,
       });
 
-      fetch(`${API}/messages/${currentUser.id}/${user.id}`)
-        .then(res => res.json())
-        .then(setMessages);
-
-      fetchData();
+      const msgRes = await fetch(`${API}/messages/${currentUser.id}/${user.id}`);
+      const userMsgs = await msgRes.json();
+      setMessages(userMsgs);
     } catch (err) {
       console.error("Failed to mark messages as read:", err);
     }
@@ -180,16 +182,20 @@ const Messages = () => {
           <p className="px-3 mt-3 text-muted">No recent conversations</p>
         ) : (
           chatPartners.map(user => {
-            const isUnread = messages.some(
-              msg => msg.senderId === user.id && msg.isRead === 0
+            const isActive = selectedContact?.id === user.id;
+            const hasUnread = allMessages.some(
+              msg =>
+                msg.senderId === user.id &&
+                msg.receiverId === currentUser.id &&
+                msg.isRead === 0
             );
 
             return (
               <div
-                key={user.id}
+                key={`chat-${user.id}`}
                 className={`d-flex align-items-center gap-3 p-3 border-bottom 
-                  ${selectedContact?.id === user.id ? "bg-light border-start border-success border-4" : ""}
-                  ${isUnread ? "flash-mint" : ""}
+                  ${isActive ? "bg-light border-start border-success border-4" : ""}
+                  ${!isActive && hasUnread ? "flash-mint" : ""}
                 `}
                 style={{ cursor: "pointer" }}
                 onClick={() => handleSelectContact(user)}
@@ -230,7 +236,6 @@ const Messages = () => {
                   ) : msg.content.startsWith("data:video") ? (
                     <video controls style={{ maxWidth: "200px", borderRadius: "10px" }}>
                       <source src={msg.content} type="video/mp4" />
-                      Your browser does not support the video tag.
                     </video>
                   ) : (
                     <span>{msg.content}</span>
@@ -242,7 +247,7 @@ const Messages = () => {
                       <div className="text-end text-white-50 small mt-1" style={{ fontSize: "11px" }}>
                         ✓ Seen
                       </div>
-                  )}
+                    )}
                 </div>
               ))}
               <div ref={messagesEndRef} />
@@ -279,7 +284,7 @@ const Messages = () => {
         )}
       </div>
 
-      {/* Modal: All accepted friends */}
+      {/* Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)} backdrop="static" style={{ zIndex: 9999 }}>
         <Modal.Header closeButton>
           <Modal.Title>Start New Conversation</Modal.Title>
@@ -290,7 +295,7 @@ const Messages = () => {
           ) : (
             friends.map(user => (
               <div
-                key={user.id}
+                key={`modal-${user.id}`}
                 className="d-flex align-items-center gap-3 p-2 hover-bg-light"
                 style={{ cursor: "pointer" }}
                 onClick={() => {

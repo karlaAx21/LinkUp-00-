@@ -1,39 +1,108 @@
 import React, { useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { UserContext } from "../../contextProvider";
-import styles from "./Sidebar.module.css";
+import io from "socket.io-client";
+import styles from "./Sidebar.module.css"; // ✅ using styles now
+
+const socket = io("http://localhost:5000");
 
 const Sidebar = () => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
-  return (
-    <aside className={styles.sidebar}>
-      <h1 className={styles.logo}>Link<span>Up</span></h1>
+  const handleLogout = () => {
+    socket.emit("logout", user?.id);
+    socket.disconnect();
+    localStorage.removeItem("currentUser");
+    navigate("/login");
+    window.location.reload();
+  };
 
-      <div className={styles.profileCard}>
-        <img
-          src={user?.ProfilePic || "/default.png"}
-          alt="Profile"
-          className={styles.avatar}
-        />
-        <p className={styles.name}>{user?.FirstName} {user?.LastName}</p>
-        <p className={styles.handle}>@{user?.Username}</p>
+  return (
+    <aside
+      className="d-flex flex-column bg-white px-4 py-4 vh-100 border-end shadow-sm position-sticky top-0"
+      style={{ width: "280px", minWidth: "280px" }}
+    >
+      <h1 className={`${styles.logo} mb-4`}>
+        Link<span className={styles.mint}>Up</span>
+      </h1>
+
+      <div className="mb-4 w-100 text-center">
+        {user?.ProfilePic ? (
+          <img
+            src={user.ProfilePic}
+            alt="Avatar"
+            className="rounded-circle mb-2 shadow-sm border"
+            style={{ width: "70px", height: "70px", objectFit: "cover" }}
+          />
+        ) : (
+          <div
+            className={`rounded-circle mb-2 shadow-sm ${styles.avatarFallback}`}
+            style={{ width: "70px", height: "70px" }}
+          >
+            {user?.FirstName?.[0] ?? "U"}
+            {user?.LastName?.[0] ?? ""}
+          </div>
+        )}
+        <div className="fw-semibold">{user?.FirstName} {user?.LastName}</div>
+        <div className="text-muted small">@{user?.Username}</div>
       </div>
 
-      <nav className={styles.nav}>
-        <NavLink to="/feed" className={styles.link}>Feed</NavLink>
-        <NavLink to="/messages" className={styles.link}>Messages <span className={styles.badge}>3</span></NavLink>
-        <NavLink to="/friends" className={styles.link}>Friends <span className={styles.badge}>2</span></NavLink>
-        <NavLink to="/explore" className={styles.link}>Explore</NavLink>
-        <NavLink to="/notifications" className={styles.link}>Notifications <span className={styles.badge}>5</span></NavLink>
-        <NavLink to="/profile" className={styles.link}>Profile</NavLink>
+      <nav className="nav flex-column flex-grow-1 w-100">
+        <NavLink
+          to="/feed"
+          className={({ isActive }) =>
+            `nav-link ${styles.sidebarLink} ${isActive ? styles.sidebarLinkActive : ""}`
+          }
+        >
+          📰 Feed
+        </NavLink>
+        <NavLink
+          to="/messages"
+          className={({ isActive }) =>
+            `nav-link ${styles.sidebarLink} ${isActive ? styles.sidebarLinkActive : ""}`
+          }
+        >
+          💬 Messages
+        </NavLink>
+        <NavLink
+          to="/friends"
+          className={({ isActive }) =>
+            `nav-link ${styles.sidebarLink} ${isActive ? styles.sidebarLinkActive : ""}`
+          }
+        >
+          👥 Friends
+        </NavLink>
+        <NavLink
+          to="/explore"
+          className={({ isActive }) =>
+            `nav-link ${styles.sidebarLink} ${isActive ? styles.sidebarLinkActive : ""}`
+          }
+        >
+          🔍 Explore
+        </NavLink>
+        <NavLink
+          to="/notifications"
+          className={({ isActive }) =>
+            `nav-link ${styles.sidebarLink} ${isActive ? styles.sidebarLinkActive : ""}`
+          }
+        >
+          🔔 Notifications
+        </NavLink>
+        <NavLink
+          to="/profile"
+          className={({ isActive }) =>
+            `nav-link ${styles.sidebarLink} ${isActive ? styles.sidebarLinkActive : ""}`
+          }
+        >
+          🙍‍♂️ Profile
+        </NavLink>
       </nav>
 
-      <button className={styles.logout} onClick={() => {
-        localStorage.clear();
-        navigate("/login");
-      }}>
+      <button
+        className="btn btn-outline-success w-100 mt-auto rounded-pill fw-semibold"
+        onClick={handleLogout}
+      >
         Logout
       </button>
     </aside>

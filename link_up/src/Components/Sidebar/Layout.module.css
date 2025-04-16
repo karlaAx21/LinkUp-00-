@@ -1,12 +1,14 @@
 .layout {
   display: flex;
   height: 100vh;
+  width: 100%;
+  overflow: hidden;
 }
 
+/* Match exact sidebar width: 280px */
 .content {
   flex: 1;
-  padding: 20px;
-  margin-left: 10px; /* match sidebar width exactly */
-  max-width: calc(100vw - 240px); /* prevent overflow */
+  padding: 24px;
   overflow-y: auto;
+  max-width: calc(100vw - 280px); /* ✅ match sidebar */
 }

@@ -51,11 +51,13 @@ router.post("/login", async (req, res) => {
   try {
     const [users] = await pool.query(
       "SELECT * FROM users WHERE Username = ? AND Password = ?",
-      [Username, Password]
+      [Username, Password] // ⚠️ You should hash & compare passwords in production!
     );
 
     if (users.length > 0) {
       const user = users[0];
+      console.log("Login success, user:", user); // ✅ Debug log
+
       res.json({
         id: user.id,
         Username: user.Username,

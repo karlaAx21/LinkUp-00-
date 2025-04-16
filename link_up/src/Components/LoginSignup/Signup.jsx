@@ -20,39 +20,36 @@ const Signup = () => {
     const trimmed = value.trim();
     const normalized =
       name === "email" || name === "username" ? trimmed.toLowerCase() : trimmed;
-  
+
     setFormData({ ...formData, [name]: normalized });
     setError("");
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     for (const key in formData) {
       if (!formData[key]) {
         setError("All fields are required.");
         return;
       }
     }
-  
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError("Please enter a valid email address.");
       return;
     }
-  
+
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-  
+
     try {
       const response = await fetch("http://localhost:5000/api/users", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           FirstName: formData.firstName,
           LastName: formData.lastName,
@@ -60,17 +57,16 @@ const Signup = () => {
           email: formData.email,
           Password: formData.password,
           ProfilePic: `https://i.pravatar.cc/150?u=${formData.username}`,
-
         }),
       });
-  
+
       const data = await response.json();
-  
+
       if (!response.ok) {
         setError(data.error || "Failed to create account. Please try again.");
         return;
       }
-  
+
       alert("Sign-up successful! Redirecting to Log In...");
       setTimeout(() => navigate("/login"), 1000);
     } catch (error) {
@@ -78,7 +74,6 @@ const Signup = () => {
       setError("Sign-up failed. Please try again.");
     }
   };
-  
 
   return (
     <div className={styles.authPage}>
@@ -98,6 +93,7 @@ const Signup = () => {
             name="firstName"
             placeholder="John"
             value={formData.firstName}
+            autoComplete="given-name"
             onChange={handleChange}
             required
           />
@@ -109,6 +105,7 @@ const Signup = () => {
             name="lastName"
             placeholder="Doe"
             value={formData.lastName}
+            autoComplete="family-name"
             onChange={handleChange}
             required
           />
@@ -120,6 +117,7 @@ const Signup = () => {
             name="username"
             placeholder="johndoe123"
             value={formData.username}
+            autoComplete="username"
             onChange={handleChange}
             required
           />
@@ -131,6 +129,7 @@ const Signup = () => {
             name="email"
             placeholder="name@example.com"
             value={formData.email}
+            autoComplete="email"
             onChange={handleChange}
             required
           />
@@ -142,6 +141,7 @@ const Signup = () => {
             name="password"
             placeholder="••••••••"
             value={formData.password}
+            autoComplete="new-password"
             onChange={handleChange}
             required
           />
@@ -153,6 +153,7 @@ const Signup = () => {
             name="confirmPassword"
             placeholder="••••••••"
             value={formData.confirmPassword}
+            autoComplete="new-password"
             onChange={handleChange}
             required
           />
@@ -164,7 +165,10 @@ const Signup = () => {
 
         <div className={styles.authFooter}>
           Already have an account?
-          <span className={styles.signupLink} onClick={() => navigate("/login")}>
+          <span
+            className={styles.signupLink}
+            onClick={() => navigate("/login")}
+          >
             Log In
           </span>
         </div>

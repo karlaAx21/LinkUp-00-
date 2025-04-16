@@ -4,14 +4,16 @@ const pool = require("../db");
 module.exports = function (io) {
   const router = express.Router();
 
-  // ✅ Get all messages OR between two users
+  // ✅ Fetch all messages or between two users
   router.get("/:userId/:contactId", async (req, res) => {
     const { userId, contactId } = req.params;
     try {
       let query, params;
 
       if (contactId === "0") {
-        query = `SELECT * FROM messages WHERE senderId = ? OR receiverId = ? ORDER BY timestamp ASC`;
+        query = `SELECT * FROM messages 
+                 WHERE senderId = ? OR receiverId = ? 
+                 ORDER BY timestamp ASC`;
         params = [userId, userId];
       } else {
         query = `SELECT * FROM messages 
@@ -32,6 +34,11 @@ module.exports = function (io) {
   // ✅ Mark messages as read
   router.put("/markAsRead", async (req, res) => {
     const { senderId, receiverId } = req.body;
+
+    if (!senderId || !receiverId) {
+      return res.status(400).json({ error: "Missing senderId or receiverId" });
+    }
+
     try {
       await pool.query(
         `UPDATE messages 
@@ -48,15 +55,15 @@ module.exports = function (io) {
 
   // ✅ Socket.IO setup
   io.on("connection", (socket) => {
-    console.log("✅ A user connected:", socket.id);
+    console.log("✅ User connected:", socket.id);
 
-    // Join user's room
+    // Join personal room
     socket.on("join", (userId) => {
       socket.join(`user-${userId}`);
-      console.log(`User ${userId} joined room user-${userId}`);
+      console.log(`🟢 User ${userId} joined room user-${userId}`);
     });
 
-    // ✅ Send a new message
+    // ✅ Send a message
     socket.on("sendMessage", async ({ senderId, receiverId, content }) => {
       try {
         const [result] = await pool.query(
@@ -64,12 +71,16 @@ module.exports = function (io) {
           [senderId, receiverId, content]
         );
 
-        const [savedMsg] = await pool.query("SELECT * FROM messages WHERE id = ?", [result.insertId]);
+        const [savedMsg] = await pool.query(
+          "SELECT * FROM messages WHERE id = ?",
+          [result.insertId]
+        );
 
+        // Send to both participants
         io.to(`user-${receiverId}`).emit("receiveMessage", savedMsg[0]);
         io.to(`user-${senderId}`).emit("receiveMessage", savedMsg[0]);
 
-        // New conversation check
+        // Check for new conversation (first 1-2 messages)
         const [existing] = await pool.query(
           `SELECT id FROM messages 
            WHERE (senderId = ? AND receiverId = ?) 
@@ -84,14 +95,13 @@ module.exports = function (io) {
 
         socket.emit("messageSent", savedMsg[0]);
       } catch (err) {
-        console.error("Socket message error:", err);
+        console.error("❌ Message send error:", err);
         socket.emit("error", { message: "Failed to send message." });
       }
     });
 
-    // ✅ Handle read status real-time sync
+    // ✅ Read receipt handler
     socket.on("readMessages", ({ senderId, receiverId }) => {
-      // Notify the original sender that their messages were read
       io.to(`user-${senderId}`).emit("messagesRead", { by: receiverId });
     });
 

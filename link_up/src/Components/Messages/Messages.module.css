@@ -8,10 +8,6 @@
 }
 
 @keyframes flashFade {
-  from {
-    background-color: #ccffe0;
-  }
-  to {
-    background-color: #e6fff2;
-  }
+  from { background-color: #ccffe0; }
+  to   { background-color: #e6fff2; }
 }
