@@ -1,0 +1,6 @@
+express
+mysql2
+cors
+dotenv
+multer
+socket.io

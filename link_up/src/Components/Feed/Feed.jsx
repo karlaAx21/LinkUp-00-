@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "./feed.module.css";
 import PostCard from "../PostCard/PostCard";
 import UserCard from "../UserCard/UserCard";
@@ -11,15 +11,16 @@ const Feed = () => {
   const [error, setError] = useState(null);
 
   const [newPostContent, setNewPostContent] = useState("");
-  const [newPostImage, setNewPostImage] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const fileInputRef = useRef(null); // ✅ Used to reset file input
 
-  const API = "https://67bea66cb2320ee05010d2b4.mockapi.io/linkup/api";
+  const API = "http://localhost:5000/api";
 
   useEffect(() => {
-    fetch(`${API}/Posts`)
+    fetch(`${API}/posts`)
       .then((res) => res.json())
       .then((data) => {
-        setPosts(data.reverse()); // most recent first
+        setPosts(data); // ✅ newest already first, no .reverse()
         setLoadingPosts(false);
       })
       .catch((err) => {
@@ -28,7 +29,7 @@ const Feed = () => {
         setLoadingPosts(false);
       });
 
-    fetch(`${API}/Users`)
+    fetch(`${API}/users`)
       .then((res) => res.json())
       .then((data) => {
         setCreators(data);
@@ -50,25 +51,31 @@ const Feed = () => {
       return;
     }
 
-    const newPost = {
-      Username: currentUser.Username,
-      Content: newPostContent,
-      Image: newPostImage,
-      Likes: 0,
-      createdAt: new Date().toISOString(),
-    };
+    const formData = new FormData();
+    formData.append("userId", currentUser.id);
+    formData.append("content", newPostContent);
+
+    selectedFiles.forEach((file) => {
+      formData.append("media", file); // field name matches multer
+    });
 
     try {
-      const res = await fetch(`${API}/Posts`, {
+      const res = await fetch(`${API}/posts`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
+        body: formData,
       });
 
-      const saved = await res.json();
-      setPosts([saved, ...posts]);
+      await res.json(); // ignore single post; we'll re-fetch all
+
+      const refreshed = await fetch(`${API}/posts`);
+      const allPosts = await refreshed.json();
+      setPosts(allPosts); // ✅ newest post stays on top
+
       setNewPostContent("");
-      setNewPostImage("");
+      setSelectedFiles([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""; // ✅ reset file input
+      }
     } catch (err) {
       console.error("Failed to create post:", err);
       alert("Something went wrong.");
@@ -81,8 +88,6 @@ const Feed = () => {
     <div className={`container-fluid px-4 ${styles.feedWrapper}`}>
       <div className="row justify-content-center">
         <div className="col-lg-8 col-md-12">
-
-          {/* ✅ New Post Form */}
           <div className="card p-3 mb-4">
             <h5>Create a Post</h5>
             <textarea
@@ -93,30 +98,45 @@ const Feed = () => {
             />
             <input
               className="form-control mb-2"
-              type="text"
-              placeholder="Image URL (optional)"
-              value={newPostImage}
-              onChange={(e) => setNewPostImage(e.target.value)}
+              type="file"
+              multiple
+              accept="image/*,video/*"
+              ref={fileInputRef}
+              onChange={(e) => setSelectedFiles([...e.target.files])}
             />
-            <button className="btn btn-success w-100" onClick={handlePostSubmit}>
+            <button
+              className="btn btn-success w-100"
+              onClick={handlePostSubmit}
+            >
               Post
             </button>
           </div>
 
-          {/* Posts */}
           {loadingPosts ? (
             <p>Loading posts...</p>
+          ) : posts.length === 0 ? (
+            <p className="text-muted">No posts yet. Be the first to post!</p>
           ) : (
-            posts.map((post) => <PostCard key={post.id} post={post} />)
+            posts.map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                onPostDeleted={(id) =>
+                  setPosts((prev) => prev.filter((p) => p.id !== id))
+                }
+              />
+            ))
+            
           )}
         </div>
 
-        {/* Sidebar */}
         <div className="col-lg-4 mt-4 mt-lg-0">
           <div className={styles.sidebarCard}>
             <h5 className="text-center">Top Creators</h5>
             {loadingUsers ? (
               <p>Loading users...</p>
+            ) : creators.length === 0 ? (
+              <p className="text-muted text-center">No users yet.</p>
             ) : (
               creators.map((user) => <UserCard key={user.id} user={user} />)
             )}

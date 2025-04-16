@@ -1,96 +1,170 @@
+// ... existing imports ...
 import React, { useState, useEffect, useRef } from "react";
-import "./Messages.module.css";
 import { Button, Modal, Form, InputGroup } from "react-bootstrap";
+import { useLocation } from "react-router-dom";
+import io from "socket.io-client";
+import "./Messages.module.css";
 
-const API = "https://67bea66cb2320ee05010d2b4.mockapi.io/linkup/api";
+const API = "http://localhost:5000/api";
+const socket = io("http://localhost:5000");
 
 const Messages = () => {
   const [selectedContact, setSelectedContact] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [friends, setFriends] = useState([]);
+  const [chatPartners, setChatPartners] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const messagesEndRef = useRef(null);
 
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const location = useLocation();
 
   useEffect(() => {
-    fetch(`${API}/Users`)
-      .then(res => res.json())
-      .then(data => {
-        const friendsOnly = data.filter(u => u.Friend && u.id !== currentUser?.id);
-        setUsers(friendsOnly);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (selectedContact && currentUser?.id) {
-      fetch(`${API}/Messages`)
-        .then(res => res.json())
-        .then(data => {
-          const filtered = data.filter(
-            msg =>
-              (msg.senderID === currentUser.id && msg.receiverID === selectedContact.id) ||
-              (msg.senderID === selectedContact.id && msg.receiverID === currentUser.id)
-          );
-          setMessages(filtered);
-        });
+    if (currentUser?.id) {
+      socket.emit("join", currentUser.id);
     }
-  }, [selectedContact]);
+  }, [currentUser?.id]);
+
+  const fetchData = async () => {
+    if (!currentUser?.id) return;
+
+    try {
+      const [usersRes, requestsRes, messagesRes] = await Promise.all([
+        fetch(`${API}/users`),
+        fetch(`${API}/friend_requests/${currentUser.id}`),
+        fetch(`${API}/messages/${currentUser.id}/0`)
+      ]);
+
+      const allUsers = await usersRes.json();
+      const allRequests = await requestsRes.json();
+      const allMessages = await messagesRes.json();
+
+      const acceptedFriendIds = allRequests
+        .filter(r => r.status === "accepted")
+        .map(r => String(r.senderId === currentUser.id ? r.receiverId : r.senderId));
+
+      const acceptedFriends = allUsers.filter(u => acceptedFriendIds.includes(String(u.id)));
+      setFriends(acceptedFriends);
+
+      const partnerMap = {};
+      allMessages.forEach(msg => {
+        const partnerId = msg.senderId === currentUser.id ? msg.receiverId : msg.senderId;
+        partnerMap[partnerId] = true;
+      });
+
+      const chatList = acceptedFriends.filter(user => partnerMap[user.id]);
+      setChatPartners(chatList);
+
+      const incoming = location.state?.chatWith;
+      if (incoming) {
+        const match = acceptedFriends.find(f => f.id === incoming.id);
+        if (match) handleSelectContact(match);
+      }
+    } catch (err) {
+      console.error("Failed to load message data:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [currentUser?.id]);
+
+  useEffect(() => {
+    if (!selectedContact || !currentUser?.id) return;
+
+    fetch(`${API}/messages/${currentUser.id}/${selectedContact.id}`)
+      .then(res => res.json())
+      .then(setMessages)
+      .catch(err => console.error("Failed to load messages:", err));
+  }, [selectedContact, currentUser?.id]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    socket.on("receiveMessage", (msg) => {
+      if (
+        selectedContact &&
+        (msg.senderId === selectedContact.id || msg.receiverId === selectedContact.id)
+      ) {
+        setMessages((prev) => [...prev, msg]);
+      }
+    });
+
+    socket.on("newConversation", () => {
+      fetchData();
+    });
+
+    // ✅ Real-time read receipt handler
+    socket.on("messagesRead", ({ by }) => {
+      if (selectedContact?.id === by) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.senderId === currentUser.id ? { ...msg, isRead: 1 } : msg
+          )
+        );
+      }
+    });
+
+    return () => {
+      socket.off("receiveMessage");
+      socket.off("newConversation");
+      socket.off("messagesRead");
+    };
+  }, [selectedContact]);
+
   const sendMessage = () => {
     if (!newMessage || !selectedContact || !currentUser) return;
 
-    const newMsg = {
-      senderID: currentUser.id,
-      receiverID: selectedContact.id,
-      ContentM: newMessage,
-      Timestamp: new Date().toISOString(),
-      Read: false,
-    };
+    socket.emit("sendMessage", {
+      senderId: currentUser.id,
+      receiverId: selectedContact.id,
+      content: newMessage,
+    });
 
-    fetch(`${API}/Messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newMsg),
-    })
-      .then(res => res.json())
-      .then(msg => {
-        setMessages(prev => [...prev, msg]);
-        setNewMessage("");
-      });
+    setNewMessage("");
   };
 
   const handleFileUpload = (file) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      const base64String = reader.result;
-
-      const newMsg = {
-        senderID: currentUser.id,
-        receiverID: selectedContact.id,
-        ContentM: base64String,
-        Timestamp: new Date().toISOString(),
-        Read: false,
-      };
-
-      fetch(`${API}/Messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newMsg),
-      })
-        .then(res => res.json())
-        .then(msg => {
-          setMessages(prev => [...prev, msg]);
-        });
+      socket.emit("sendMessage", {
+        senderId: currentUser.id,
+        receiverId: selectedContact.id,
+        content: reader.result,
+      });
     };
+    if (file) reader.readAsDataURL(file);
+  };
 
-    if (file) {
-      reader.readAsDataURL(file);
+  const handleSelectContact = async (user) => {
+    setSelectedContact(user);
+
+    try {
+      await fetch(`${API}/messages/markAsRead`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          senderId: user.id,
+          receiverId: currentUser.id,
+        }),
+      });
+
+      // Notify sender their messages were read
+      socket.emit("readMessages", {
+        senderId: user.id,
+        receiverId: currentUser.id,
+      });
+
+      fetch(`${API}/messages/${currentUser.id}/${user.id}`)
+        .then(res => res.json())
+        .then(setMessages);
+
+      fetchData();
+    } catch (err) {
+      console.error("Failed to mark messages as read:", err);
     }
   };
 
@@ -102,20 +176,33 @@ const Messages = () => {
           <h5 className="mb-0 fw-semibold">Messages</h5>
           <Button size="sm" variant="success" onClick={() => setShowModal(true)}>+ New</Button>
         </div>
-        {users.map(user => (
-          <div
-            key={user.id}
-            className={`d-flex align-items-center gap-3 p-3 border-bottom ${selectedContact?.id === user.id ? "bg-light border-start border-success border-4" : "hover-bg-light"}`}
-            style={{ cursor: "pointer" }}
-            onClick={() => setSelectedContact(user)}
-          >
-            <img src={user.ProfilePic} alt="Avatar" className="rounded-circle" width="45" height="45" />
-            <div>
-              <div className="fw-bold">{user.FirstName} {user.LastName}</div>
-              <small className="text-muted">@{user.Username}</small>
-            </div>
-          </div>
-        ))}
+        {chatPartners.length === 0 ? (
+          <p className="px-3 mt-3 text-muted">No recent conversations</p>
+        ) : (
+          chatPartners.map(user => {
+            const isUnread = messages.some(
+              msg => msg.senderId === user.id && msg.isRead === 0
+            );
+
+            return (
+              <div
+                key={user.id}
+                className={`d-flex align-items-center gap-3 p-3 border-bottom 
+                  ${selectedContact?.id === user.id ? "bg-light border-start border-success border-4" : ""}
+                  ${isUnread ? "flash-mint" : ""}
+                `}
+                style={{ cursor: "pointer" }}
+                onClick={() => handleSelectContact(user)}
+              >
+                <img src={user.ProfilePic} alt="Avatar" className="rounded-circle" width="45" height="45" />
+                <div>
+                  <div className="fw-bold">{user.FirstName} {user.LastName}</div>
+                  <small className="text-muted">@{user.Username}</small>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Chat Area */}
@@ -128,21 +215,33 @@ const Messages = () => {
             </div>
 
             <div className="flex-grow-1 p-3 overflow-auto bg-body">
-              {messages.map(msg => (
+              {messages.map((msg, idx) => (
                 <div
                   key={msg.id}
-                  className={`p-2 px-3 my-2 rounded-4 ${msg.senderID === currentUser.id ? "bg-success text-white ms-auto" : "bg-light me-auto"}`}
+                  className={`p-2 px-3 my-2 rounded-4 ${
+                    msg.senderId === currentUser.id
+                      ? "bg-success text-white ms-auto"
+                      : "bg-light me-auto"
+                  }`}
                   style={{ maxWidth: "70%", width: "fit-content" }}
                 >
-                  {msg.ContentM.startsWith("data:image") ? (
-                    <img src={msg.ContentM} alt="uploaded" style={{ maxWidth: "200px", borderRadius: "10px" }} />
-                  ) : msg.ContentM.startsWith("data:video") ? (
+                  {msg.content.startsWith("data:image") ? (
+                    <img src={msg.content} alt="uploaded" style={{ maxWidth: "200px", borderRadius: "10px" }} />
+                  ) : msg.content.startsWith("data:video") ? (
                     <video controls style={{ maxWidth: "200px", borderRadius: "10px" }}>
-                      <source src={msg.ContentM} type="video/mp4" />
+                      <source src={msg.content} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   ) : (
-                    <span>{msg.ContentM}</span>
+                    <span>{msg.content}</span>
+                  )}
+
+                  {msg.senderId === currentUser.id &&
+                    idx === messages.length - 1 &&
+                    msg.isRead === 1 && (
+                      <div className="text-end text-white-50 small mt-1" style={{ fontSize: "11px" }}>
+                        ✓ Seen
+                      </div>
                   )}
                 </div>
               ))}
@@ -169,9 +268,7 @@ const Messages = () => {
                     style={{ display: "none" }}
                   />
                 </Form.Group>
-                <Button variant="success" onClick={sendMessage} className="ms-2">
-                  Send
-                </Button>
+                <Button variant="success" onClick={sendMessage} className="ms-2">Send</Button>
               </InputGroup>
             </div>
           </>
@@ -182,29 +279,40 @@ const Messages = () => {
         )}
       </div>
 
-      {/* Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      {/* Modal: All accepted friends */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} backdrop="static" style={{ zIndex: 9999 }}>
         <Modal.Header closeButton>
           <Modal.Title>Start New Conversation</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {users.map(user => (
-            <div
-              key={user.id}
-              className="d-flex align-items-center gap-3 p-2 hover-bg-light"
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                setSelectedContact(user);
-                setShowModal(false);
-              }}
-            >
-              <img src={user.ProfilePic} alt="Avatar" className="rounded-circle" width="40" height="40" />
-              <div>
-                <div className="fw-bold">{user.FirstName} {user.LastName}</div>
-                <small className="text-muted">@{user.Username}</small>
+          {friends.length === 0 ? (
+            <p className="text-muted">No accepted friends to message yet.</p>
+          ) : (
+            friends.map(user => (
+              <div
+                key={user.id}
+                className="d-flex align-items-center gap-3 p-2 hover-bg-light"
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  handleSelectContact(user);
+                  setShowModal(false);
+                }}
+              >
+                <img
+                  src={user.ProfilePic || "/default-avatar.png"}
+                  onError={(e) => (e.target.src = "/default-avatar.png")}
+                  alt="Avatar"
+                  className="rounded-circle"
+                  width="40"
+                  height="40"
+                />
+                <div>
+                  <div className="fw-bold">{user.FirstName ?? "Unknown"} {user.LastName ?? ""}</div>
+                  <small className="text-muted">@{user.Username ?? "unknown"}</small>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </Modal.Body>
       </Modal>
     </div>

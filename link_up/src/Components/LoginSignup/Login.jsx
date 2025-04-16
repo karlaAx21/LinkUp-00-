@@ -8,33 +8,49 @@ const Login = () => {
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    const cleanedValue =
+      name === "Username" ? value.trim().toLowerCase() : value.trim();
+
+    setFormData({
+      ...formData,
+      [name]: cleanedValue,
+    });
     setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.Username || !formData.Password) {
-      setError("Please enter both email and password.");
+    const payload = {
+      Username: formData.Username.trim(),
+      Password: formData.Password.trim(),
+    };
+
+    if (!payload.Username || !payload.Password) {
+      setError("Please enter both username and password.");
       return;
     }
 
     try {
-      const res = await fetch("https://67bea66cb2320ee05010d2b4.mockapi.io/linkup/api/Users");
-      const users = await res.json();
+      const res = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-      const user = users.find(
-        (u) => u.Username === formData.Username && u.Password === formData.Password
-      );
-
-      if (user) {
+      if (res.ok) {
+        const user = await res.json();
         localStorage.setItem("currentUser", JSON.stringify(user));
         navigate("/feed");
       } else {
-        setError("Invalid credentials.");
+        const data = await res.json();
+        setError(data.error || "Login failed");
       }
     } catch (err) {
+      console.error("Login error:", err);
       setError("Something went wrong. Please try again.");
     }
   };
@@ -43,7 +59,9 @@ const Login = () => {
     <div className={styles.authPage}>
       <div className={styles.authBox}>
         <h2 className={styles.authTitle}>Login to LinkUp</h2>
-        <p className={styles.authSubtitle}>Enter your credentials to access your account</p>
+        <p className={styles.authSubtitle}>
+          Enter your credentials to access your account
+        </p>
 
         <form onSubmit={handleSubmit}>
           <label className={styles.authLabel}>Username</label>
@@ -80,7 +98,10 @@ const Login = () => {
 
         <div className={styles.authFooter}>
           <span>Don't have an account?</span>
-          <span className={styles.signupLink} onClick={() => navigate("/signup")}>
+          <span
+            className={styles.signupLink}
+            onClick={() => navigate("/signup")}
+          >
             Sign up
           </span>
         </div>

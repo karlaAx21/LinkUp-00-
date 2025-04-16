@@ -16,52 +16,61 @@ const Signup = () => {
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value.trim() });
+    const { name, value } = e.target;
+    const trimmed = value.trim();
+    const normalized =
+      name === "email" || name === "username" ? trimmed.toLowerCase() : trimmed;
+  
+    setFormData({ ...formData, [name]: normalized });
     setError("");
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     for (const key in formData) {
       if (!formData[key]) {
         setError("All fields are required.");
         return;
       }
     }
-
+  
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError("Please enter a valid email address.");
       return;
     }
-
+  
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-
+  
     try {
-      const response = await fetch(
-        "https://67bea66cb2320ee05010d2b4.mockapi.io/linkup/api/Users",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            FirstName: formData.firstName,
-            LastName: formData.lastName,
-            Username: formData.username,
-            email: formData.email,
-            Password: formData.password,
-            createdAt: new Date().toISOString(),
-          }),
-        }
-      );
+      const response = await fetch("http://localhost:5000/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          FirstName: formData.firstName,
+          LastName: formData.lastName,
+          Username: formData.username,
+          email: formData.email,
+          Password: formData.password,
+          ProfilePic: `https://i.pravatar.cc/150?u=${formData.username}`,
 
+        }),
+      });
+  
+      const data = await response.json();
+  
       if (!response.ok) {
-        throw new Error("Failed to create account. Please try again.");
+        setError(data.error || "Failed to create account. Please try again.");
+        return;
       }
-
+  
       alert("Sign-up successful! Redirecting to Log In...");
       setTimeout(() => navigate("/login"), 1000);
     } catch (error) {
@@ -69,6 +78,7 @@ const Signup = () => {
       setError("Sign-up failed. Please try again.");
     }
   };
+  
 
   return (
     <div className={styles.authPage}>
