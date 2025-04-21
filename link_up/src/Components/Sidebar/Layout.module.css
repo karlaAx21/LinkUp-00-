@@ -8,7 +8,7 @@
 /* Match exact sidebar width: 280px */
 .content {
   flex: 1;
-  padding: 24px;
   overflow-y: auto;
-  max-width: calc(100vw - 280px); /* ✅ match sidebar */
+  max-width: calc(100vw - 280px);
+  padding: 0; /* 👈 REMOVE padding */
 }

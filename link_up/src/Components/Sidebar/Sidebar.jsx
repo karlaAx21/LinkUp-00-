@@ -30,8 +30,8 @@ const Sidebar = () => {
       <div className="mb-4 w-100 text-center">
         {user?.ProfilePic ? (
           <img
-            src={user.ProfilePic}
-            alt="Avatar"
+          src={`http://localhost:5000/users/${user.id}/profile-pic?${Date.now()}`}
+          alt="Avatar"
             className="rounded-circle mb-2 shadow-sm border"
             style={{ width: "70px", height: "70px", objectFit: "cover" }}
           />
@@ -90,7 +90,7 @@ const Sidebar = () => {
           🔔 Notifications
         </NavLink>
         <NavLink
-          to="/profile"
+          to="/profile/${currentUser.Username}"
           className={({ isActive }) =>
             `nav-link ${styles.sidebarLink} ${isActive ? styles.sidebarLinkActive : ""}`
           }

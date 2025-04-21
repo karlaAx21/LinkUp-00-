@@ -39,8 +39,18 @@ const CustomizeProfile = () => {
       });
 
       const data = await res.json();
-      if (data.url) setBgUrl(`http://localhost:5000${data.url}`);
-    } catch (err) {
+      if (data.url) {
+        const fullUrl = `http://localhost:5000${data.url}`;
+        setBgUrl(fullUrl);
+      
+        const updatedUser = {
+          ...user,
+          background_url: fullUrl,
+        };
+      
+        localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+      }
+          } catch (err) {
       console.error(err);
     } finally {
       setUploadingBg(false);
@@ -62,7 +72,7 @@ const CustomizeProfile = () => {
       });
 
       if (res.ok) {
-        setProfilePicUrl(`http://localhost:5000/users/${user.id}/profile-pic`);
+        setProfilePicUrl(`http://localhost:5000/users/${user.id}/profile-pic?${Date.now()}`);
       }
     } catch (err) {
       console.error(err);
@@ -89,7 +99,7 @@ const CustomizeProfile = () => {
       };
 
       localStorage.setItem("currentUser", JSON.stringify(updatedUser));
-      navigate("/profile");
+      navigate("/profile/${currentUser.Username}");
     } catch (err) {
       console.error(err);
       alert("Failed to save profile.");
@@ -118,11 +128,11 @@ const CustomizeProfile = () => {
       </div>
 
       <div className="card p-4 mb-4">
-        <h5 className="mb-3">Background Image</h5>
+        <h5 className="mb-3">Change Background Image</h5>
         <input
           type="file"
           className="form-control"
-          accept="image/jpeg,image/png"
+          accept="image/*"
           onChange={handleBackgroundChange}
           disabled={uploadingBg}
         />
@@ -138,11 +148,11 @@ const CustomizeProfile = () => {
       </div>
 
       <div className="card p-4 mb-4">
-        <h5 className="mb-3">Profile Picture</h5>
+        <h5 className="mb-3">Change Profile Picture</h5>
         <input
           type="file"
           className="form-control"
-          accept="image/jpeg,image/png"
+          accept="image/*"
           onChange={handleProfilePicChange}
           disabled={uploadingPfp}
         />

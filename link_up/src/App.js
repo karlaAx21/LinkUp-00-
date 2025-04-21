@@ -31,7 +31,7 @@ function LinkUp() {
           <Route path="/friends" element={<Layout><Friends /></Layout>} />
           <Route path="/explore" element={<Layout><Explore /></Layout>} />
           <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
-          <Route path="/profile" element={<Layout><Profile /></Layout>} />
+          <Route path="/profile/:username" element={<Layout><Profile /></Layout>} />
 
         </Routes>
       </Router>

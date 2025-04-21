@@ -2,6 +2,7 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Link } from "react-router-dom";
 import styles from "./Profile.module.css"
+
 const ProfilePage = () => {
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
@@ -16,7 +17,6 @@ const currentUser = JSON.parse(localStorage.getItem("currentUser"));
     <div
     className={styles.profileContainer}
     style={{
-      
         minHeight: "100vh",
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: "cover",
@@ -24,27 +24,31 @@ const currentUser = JSON.parse(localStorage.getItem("currentUser"));
         backgroundRepeat: "no-repeat",
         paddingTop: "60px",
       }}
->
+    >
 
     
+        <div className="container p-4">
           <div
-            className="container p-4"
             style={{
               backgroundColor: "rgba(255, 255, 255, 0.1)",
               backdropFilter: "blur(10px)",
               WebkitBackdropFilter: "blur(10px)",
               borderRadius: "12px",
-              border: "1px solid rgba(255, 255, 255, 0.3)"
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              padding: "10px",
+              marginBottom: "1rem"
             }}
           >
-        <ul className="nav nav-tabs mb-4">
-          <li className="nav-item"><button className="nav-link active">Profile</button></li>
-          <li className="nav-item"><button className="nav-link">Posts</button></li>
-          <li className="nav-item"><button className="nav-link">Liked</button></li>
-          <li className="nav-item"><button className="nav-link">Settings</button></li>
-        </ul>
+            <ul className="nav nav-tabs mb-0">
+              <li className="nav-item"><button className="nav-link active">Profile</button></li>
+              <li className="nav-item"><button className="nav-link">Posts</button></li>
+              <li className="nav-item"><button className="nav-link">Liked</button></li>
+              <li className="nav-item"><button className="nav-link">Settings</button></li>
+            </ul>
+          </div>
+        </div>
 
-        <div className="row">
+        <div className="row p-3">
           <div className="col-md-4 mb-4">
             <div className="card text-center p-4" style={{
               backgroundColor: currentUser.background_color || "rgba(255, 255, 255, 0.1)",
@@ -68,8 +72,8 @@ const currentUser = JSON.parse(localStorage.getItem("currentUser"));
             </div>
 
               <h4>{currentUser.FirstName} {currentUser.LastName}</h4>
-              <p className="text-muted">{currentUser.email}</p>
-              <Link to="/customize-profile">
+              <p className="text-muted pt-2">{currentUser.email}</p>
+              <Link to={`/customize-profile/${currentUser.Username}`}>
                 <button className="btn btn-success mt-2">Edit Profile</button>
               </Link>
             </div>
@@ -91,7 +95,7 @@ const currentUser = JSON.parse(localStorage.getItem("currentUser"));
           </div>
         </div>
 
-        <div className="row mt-4">
+        <div className="row mt-4 p-2">
           <div className="col">
             <div className="card p-4" style={{
               backgroundColor: currentUser.background_color || "rgba(255, 255, 255, 0.1)",
@@ -106,7 +110,7 @@ const currentUser = JSON.parse(localStorage.getItem("currentUser"));
           </div>
         </div>
       </div>
-    </div>
+  
   );
 };
 
