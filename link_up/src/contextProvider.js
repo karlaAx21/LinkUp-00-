@@ -1,30 +1,31 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState } from "react";
 
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  // ✅ Initialize user from localStorage if available
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem("currentUser");
+    return saved ? JSON.parse(saved) : null;
+  });
 
-  useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    console.log("User ID from localStorage:", userId); // Debugging log
-  
-    if (!userId) {
-      console.error("No user logged in.");
-      return;
-    }
-  
-    fetch(`https://67bea66cb2320ee05010d2b4.mockapi.io/linkup/api/Users/${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Fetched user data:", data); // Debugging log
-        setUser(data);
-      })
-      .catch((err) => console.error("Failed to fetch user", err));
-  }, []);
+  const [messages, setMessages] = useState([]);
+  const [activeChat, setActiveChat] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   return (
-    <UserContext.Provider value={{ user }}>
+    <UserContext.Provider
+      value={{
+        user,
+        setUser, // ✅ make setUser accessible so Login can update it
+        messages,
+        setMessages,
+        activeChat,
+        setActiveChat,
+        onlineUsers,
+        setOnlineUsers,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );

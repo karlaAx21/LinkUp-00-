@@ -20,14 +20,10 @@ const Messages = () => {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const location = useLocation();
 
-  // 🔒 Guard for unauthenticated access
-  if (!currentUser?.id) {
-    return <div className="p-5 text-center text-muted">Please log in to use the messaging system.</div>;
-  }
-
   useEffect(() => {
+    if (!currentUser?.id) return;
     socket.emit("join", currentUser.id);
-  }, [currentUser.id]);
+  }, [currentUser?.id]);
 
   const fetchData = async () => {
     try {
@@ -69,17 +65,18 @@ const Messages = () => {
   };
 
   useEffect(() => {
+    if (!currentUser?.id) return;
     fetchData();
-  }, [currentUser.id]);
+  }, [currentUser?.id]);
 
   useEffect(() => {
-    if (!selectedContact) return;
+    if (!selectedContact || !currentUser?.id) return;
 
     fetch(`${API}/messages/${currentUser.id}/${selectedContact.id}`)
       .then(res => res.json())
       .then(setMessages)
       .catch(err => console.error("Failed to load messages:", err));
-  }, [selectedContact]);
+  }, [selectedContact, currentUser?.id]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -118,7 +115,7 @@ const Messages = () => {
       socket.off("newConversation", handleNewConversation);
       socket.off("messagesRead", handleMessagesRead);
     };
-  }, [selectedContact]);
+  }, [selectedContact, currentUser?.id]);
 
   const sendMessage = () => {
     if (!newMessage || !selectedContact) return;
@@ -169,6 +166,10 @@ const Messages = () => {
       console.error("Failed to mark messages as read:", err);
     }
   };
+
+  if (!currentUser?.id) {
+    return <div className="p-5 text-center text-muted">Please log in to use the messaging system.</div>;
+  }
 
   return (
     <div className="d-flex vh-100 bg-light overflow-hidden rounded shadow">

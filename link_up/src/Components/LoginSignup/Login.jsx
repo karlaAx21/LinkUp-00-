@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import styles from "./LoginSignup.module.css";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../contextProvider"; // ✅ added
 
 const Login = () => {
   const navigate = useNavigate();
+  const { setUser } = useContext(UserContext); // ✅ added
   const [formData, setFormData] = useState({ Username: "", Password: "" });
   const [error, setError] = useState("");
 
@@ -50,6 +52,7 @@ const Login = () => {
       }
 
       localStorage.setItem("currentUser", JSON.stringify(user));
+      setUser(user); // ✅ set in context so EditProfile/Profile gets it
       navigate("/feed");
     } catch (err) {
       console.error("Login error:", err);

@@ -1,82 +1,107 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-
+import { Link } from "react-router-dom";
+import styles from "./Profile.module.css"
 const ProfilePage = () => {
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
   if (!currentUser) {
-    return (
-      <div className="text-center mt-5 text-danger">
-        User not logged in. Please sign in first.
-      </div>
-    );
+    return <div className="text-center mt-5 text-danger">User not logged in.</div>;
   }
 
-  return (
-    <div className="container mt-5">
-      {/* Tabs */}
-      <ul className="nav nav-tabs mb-4">
-        <li className="nav-item">
-          <button className="nav-link active">Profile</button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link">Posts</button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link">Liked</button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link">Settings</button>
-        </li>
-      </ul>
+  const backgroundImage = `http://localhost:5000/api/users/background/${currentUser.id}`;
+  const aboutMeHTML = currentUser.AboutMe || "<p>No info yet.</p>";
 
-      <div className="row">
-        {/* Left Card */}
-        <div className="col-md-4 mb-4">
-          <div className="card text-center p-4">
-            <img
-              src={currentUser.ProfilePic}
-              alt="Profile"
-              className="rounded-circle img-thumbnail mb-3"
-              width="100"
-              height="100"
-            />
-            <h4>{currentUser.FirstName} {currentUser.LastName}</h4>
-            <p className="text-muted">{currentUser.email}</p>
-            <div className="d-flex justify-content-around my-3">
-              <div>
-                <strong>0</strong>
-                <p className="mb-0 text-muted">Posts</p>
-              </div>
-              <div>
-                <strong>{currentUser.Friend ? "1" : "0"}</strong>
-                <p className="mb-0 text-muted">Friends</p>
-              </div>
+  return (
+    <div
+    className={styles.profileContainer}
+    style={{
+      
+        minHeight: "100vh",
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        paddingTop: "60px",
+      }}
+>
+
+    
+          <div
+            className="container p-4"
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              borderRadius: "12px",
+              border: "1px solid rgba(255, 255, 255, 0.3)"
+            }}
+          >
+        <ul className="nav nav-tabs mb-4">
+          <li className="nav-item"><button className="nav-link active">Profile</button></li>
+          <li className="nav-item"><button className="nav-link">Posts</button></li>
+          <li className="nav-item"><button className="nav-link">Liked</button></li>
+          <li className="nav-item"><button className="nav-link">Settings</button></li>
+        </ul>
+
+        <div className="row">
+          <div className="col-md-4 mb-4">
+            <div className="card text-center p-4" style={{
+              backgroundColor: currentUser.background_color || "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              borderRadius: "12px",
+              border: "1px solid rgba(255, 255, 255, 0.3)"
+            }}>
+                        
+            <div className="d-flex justify-content-center">
+              <img
+                src={`http://localhost:5000/users/${currentUser.id}/profile-pic`}
+                alt="Profile"
+                className="rounded-circle"
+                style={{
+                  width: "120px",
+                  height: "120px",
+                  objectFit: "cover",
+                }}
+              />
             </div>
-            <button className="btn btn-success mt-2">Edit Profile</button>
+
+              <h4>{currentUser.FirstName} {currentUser.LastName}</h4>
+              <p className="text-muted">{currentUser.email}</p>
+              <Link to="/customize-profile">
+                <button className="btn btn-success mt-2">Edit Profile</button>
+              </Link>
+            </div>
+          </div>
+
+          <div className="col-md-8">
+            <div className="card p-4" style={{
+              backgroundColor: currentUser.background_color || "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              borderRadius: "12px",
+              border: "1px solid rgba(255, 255, 255, 0.3)"
+            }}>
+              <h5>Profile Information</h5>
+              <p><strong>Username:</strong> @{currentUser.Username}</p>
+              <p><strong>Email:</strong> {currentUser.email}</p>
+              <p><strong>Joined:</strong> {new Date(currentUser.createdAt).toLocaleDateString()}</p>
+            </div>
           </div>
         </div>
 
-        {/* Right Info */}
-        <div className="col-md-8">
-          <div className="card p-4">
-            <h5 className="mb-3">Profile Information</h5>
-            <p className="text-muted">View your profile information.</p>
-            <div>
-              <strong>Full Name</strong>
-              <p>{currentUser.FirstName} {currentUser.LastName}</p>
-            </div>
-            <div>
-              <strong>Username</strong>
-              <p>@{currentUser.Username}</p>
-            </div>
-            <div>
-              <strong>Email</strong>
-              <p>{currentUser.email}</p>
-            </div>
-            <div>
-              <strong>Joined</strong>
-              <p>{new Date(currentUser.createdAt).toLocaleDateString()}</p>
+        <div className="row mt-4">
+          <div className="col">
+            <div className="card p-4" style={{
+              backgroundColor: currentUser.background_color || "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              borderRadius: "12px",
+              border: "1px solid rgba(255, 255, 255, 0.3)"
+            }}>
+              <h5 className="mb-3">About Me</h5>
+              <div dangerouslySetInnerHTML={{ __html: aboutMeHTML }} />
             </div>
           </div>
         </div>

@@ -7,6 +7,8 @@ module.exports = (upload) => {
   // GET all posts
   router.get("/", async (req, res) => {
     try {
+ 
+
       const [posts] = await pool.query(`
         SELECT posts.*, users.FirstName, users.LastName, users.ProfilePic,
           CONCAT(LEFT(users.FirstName, 1), LEFT(users.LastName, 1)) AS authorInitials,

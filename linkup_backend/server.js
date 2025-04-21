@@ -43,6 +43,7 @@ const messageRoutes = require("./routes/messages")(io);
 
 // Apply routes
 app.use("/api/users", userRoutes);
+app.use("/", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/likes", likeRoutes);

@@ -23,6 +23,7 @@ function LinkUp() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/customize-profile/:username" element={<CustomizeProfile />} />
+          <Route path="/customize-profile" element={<CustomizeProfile />} />
 
           {/* Pages WITH Sidebar */}
           <Route path="/feed" element={<Layout><Feed /></Layout>} />
@@ -31,6 +32,7 @@ function LinkUp() {
           <Route path="/explore" element={<Layout><Explore /></Layout>} />
           <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
           <Route path="/profile" element={<Layout><Profile /></Layout>} />
+
         </Routes>
       </Router>
     </UserProvider>

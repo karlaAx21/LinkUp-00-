@@ -61,6 +61,7 @@ const Signup = () => {
       });
 
       const data = await response.json();
+      console.log("Signup response:", response.status, data); // ✅ DEBUG LOG
 
       if (!response.ok) {
         setError(data.error || "Failed to create account. Please try again.");

@@ -112,22 +112,23 @@ const Feed = () => {
             </button>
           </div>
 
-          {loadingPosts ? (
-            <p>Loading posts...</p>
-          ) : posts.length === 0 ? (
-            <p className="text-muted">No posts yet. Be the first to post!</p>
-          ) : (
-            posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                onPostDeleted={(id) =>
-                  setPosts((prev) => prev.filter((p) => p.id !== id))
-                }
-              />
-            ))
-            
-          )}
+              {loadingPosts ? (
+                <p>Loading posts...</p>
+                   ) : posts.length === 0 ? (
+                <p className="text-muted">No posts yet. Be the first to post!</p>
+                   ) : Array.isArray(posts) ? (
+              posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onPostDeleted={(id) =>
+              setPosts((prev) => prev.filter((p) => p.id !== id))
+          }
+        />
+      ))
+    ) : (
+      <p className="text-danger">Something went wrong loading posts.</p>
+    )}
         </div>
 
         <div className="col-lg-4 mt-4 mt-lg-0">
