@@ -59,15 +59,19 @@ const currentUser = JSON.parse(localStorage.getItem("currentUser"));
               border: "1px solid rgba(255, 255, 255, 0.3)"
             }}>
                         
-            <div className="d-flex justify-content-center pb-3">
-            <img
-              src={`http://localhost:5000/users/${currentUser.id}/profile-pic?t=${timestamp}`}
-              alt="Profile"
-              className="rounded-circle"
-              style={{ width: "120px", height: "120px", objectFit: "cover" }}
-            />
+               <div className="d-flex justify-content-center pb-3">
+                <img
+                  src={`http://localhost:5000/users/${currentUser.id}/profile-pic?t=${timestamp}`}
+                  alt="Profile"
+                  className="rounded-circle"
+                  style={{ width: "120px", height: "120px", objectFit: "cover" }}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/dad.gif"; // ← must be in public/
+                  }}
+                />
+              </div>
 
-            </div>
 
               <h4>{currentUser.FirstName} {currentUser.LastName}</h4>
               <p className="text-muted">{currentUser.email}</p>

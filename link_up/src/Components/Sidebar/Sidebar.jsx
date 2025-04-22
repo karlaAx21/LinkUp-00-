@@ -90,7 +90,7 @@ const Sidebar = () => {
           🔔 Notifications
         </NavLink>
         <NavLink
-          to="/profile/${currentUser.Username}"
+          to={`/profile/${user?.Username}`}
           className={({ isActive }) =>
             `nav-link ${styles.sidebarLink} ${isActive ? styles.sidebarLinkActive : ""}`
           }
@@ -98,7 +98,6 @@ const Sidebar = () => {
           🙍‍♂️ Profile
         </NavLink>
       </nav>
-
       <button
         className="btn btn-outline-success w-100 mt-auto rounded-pill fw-semibold"
         onClick={handleLogout}
