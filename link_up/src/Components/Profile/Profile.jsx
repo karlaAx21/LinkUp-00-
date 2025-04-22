@@ -10,8 +10,9 @@ const currentUser = JSON.parse(localStorage.getItem("currentUser"));
     return <div className="text-center mt-5 text-danger">User not logged in.</div>;
   }
 
-  const backgroundImage = `http://localhost:5000/api/users/background/${currentUser.id}`;
-  const aboutMeHTML = currentUser.AboutMe || "<p>No info yet.</p>";
+  const timestamp = Date.now();
+  const backgroundImage = `http://localhost:5000/api/users/background/${currentUser.id}?t=${timestamp}`;
+    const aboutMeHTML = currentUser.AboutMe || "<p>No info yet.</p>";
 
   return (
     <div
@@ -58,21 +59,18 @@ const currentUser = JSON.parse(localStorage.getItem("currentUser"));
               border: "1px solid rgba(255, 255, 255, 0.3)"
             }}>
                         
-            <div className="d-flex justify-content-center">
-              <img
-                src={`http://localhost:5000/users/${currentUser.id}/profile-pic`}
-                alt="Profile"
-                className="rounded-circle"
-                style={{
-                  width: "120px",
-                  height: "120px",
-                  objectFit: "cover",
-                }}
-              />
+            <div className="d-flex justify-content-center pb-3">
+            <img
+              src={`http://localhost:5000/users/${currentUser.id}/profile-pic?t=${timestamp}`}
+              alt="Profile"
+              className="rounded-circle"
+              style={{ width: "120px", height: "120px", objectFit: "cover" }}
+            />
+
             </div>
 
               <h4>{currentUser.FirstName} {currentUser.LastName}</h4>
-              <p className="text-muted pt-2">{currentUser.email}</p>
+              <p className="text-muted">{currentUser.email}</p>
               <Link to={`/customize-profile/${currentUser.Username}`}>
                 <button className="btn btn-success mt-2">Edit Profile</button>
               </Link>
