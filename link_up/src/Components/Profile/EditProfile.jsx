@@ -19,15 +19,24 @@ const CustomizeProfile = () => {
   const [uploadingBg, setUploadingBg] = useState(false);
 
   useEffect(() => {
-    if (user && user.Username && user.background_color !== undefined) {
-      setCardColor(user.background_color);
-      setOriginalCardColor(user.background_color);
-      setHtmlInput(user.AboutMe || "");
-      setOriginalAboutMe(user.AboutMe || "");
-      setBgUrl(user.background_url || "");
-      setProfilePicUrl(user.ProfilePic || "");
+    if (user && user.Username) {
+      fetch(`http://localhost:5000/api/users/${user.id}`)
+        .then(res => res.json())
+        .then(fresh => {
+          setCardColor(fresh.background_color || "#ffffff");
+          setOriginalCardColor(fresh.background_color || "#ffffff");
+          setHtmlInput(fresh.AboutMe || "");
+          setOriginalAboutMe(fresh.AboutMe || "");
+          setBgUrl(fresh.background_url || "");
+          setProfilePicUrl(`http://localhost:5000/users/${fresh.id}/profile-pic`);
+          localStorage.setItem("currentUser", JSON.stringify(fresh));
+        })
+        .catch(err => {
+          console.error("Failed to fetch user:", err);
+        });
     }
   }, [user]);
+  
   
   
 
