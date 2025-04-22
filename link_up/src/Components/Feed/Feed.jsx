@@ -12,7 +12,7 @@ const Feed = () => {
 
   const [newPostContent, setNewPostContent] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const fileInputRef = useRef(null); // ✅ Used to reset file input
+  const fileInputRef = useRef(null); // Used to reset file input
 
   const API = "http://localhost:5000/api";
 
@@ -20,7 +20,7 @@ const Feed = () => {
     fetch(`${API}/posts`)
       .then((res) => res.json())
       .then((data) => {
-        setPosts(data); // ✅ newest already first, no .reverse()
+        setPosts(data); // newest already first, no .reverse()
         setLoadingPosts(false);
       })
       .catch((err) => {

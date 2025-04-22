@@ -6,7 +6,25 @@ const db = require("../db");
 // ✅ Use memory storage for storing uploads in RAM
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+router.get("/username/:username", async (req, res) => {
+  const { username } = req.params;
 
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM users WHERE Username = ? LIMIT 1",
+      [username]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("Error fetching user by username:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 // GET all users
 router.get("/", async (req, res) => {
   try {
