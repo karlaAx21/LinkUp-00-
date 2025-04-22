@@ -184,7 +184,7 @@ const CustomizeProfile = () => {
         />
 <div className="mt-3 text-center">
   <img
-    src={profilePicUrl || "/dad.gif"}
+    src={profilePicUrl || "/default.jpg"}
     alt="Profile Preview"
     className="rounded-circle"
     style={{
