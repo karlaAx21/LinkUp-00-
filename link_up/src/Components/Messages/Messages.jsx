@@ -18,6 +18,8 @@ const Messages = () => {
   const messagesEndRef = useRef(null);
 
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const isAuthenticated = !!currentUser?.id;
+  
   const location = useLocation();
 
   useEffect(() => {

@@ -6,7 +6,7 @@ const path = require("path");
 const multer = require("multer");
 const pool = require("./db");
 
-// App setup
+// App + Socket.IO setup
 const app = express();
 const http = require("http").createServer(app);
 const { Server } = require("socket.io");
@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
-// File upload middleware
+// File upload storage config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
   filename: (req, file, cb) => {
@@ -28,18 +28,32 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Home route
-app.get("/", (req, res) => res.send("API is running ✅"));
+function safeLoad(path, args = []) {
+  try {
+    const routeModule = require(path);
+    if (typeof routeModule === "function" && args.length > 0) {
+      const result = routeModule(...args);
+      console.log(`✅ Loaded ${path} with args`);
+      return result;
+    } else {
+      console.log(`✅ Loaded ${path} as plain router`);
+      return routeModule;
+    }
+  } catch (err) {
+    console.error(`❌ Failed to load ${path}:`, err.message);
+    process.exit(1);
+  }
+}
 
-// Route files (modularized)
-const userRoutes = require("./routes/users");
-const postRoutes = require("./routes/posts")(upload);
-const commentRoutes = require("./routes/comments");
-const likeRoutes = require("./routes/likes");
-const friendRoutes = require("./routes/friend_requests");
 
-// ✅ Pass `io` to message routes
-const messageRoutes = require("./routes/messages")(io);
+// Routes
+const userRoutes = safeLoad("./routes/users");
+const postRoutes = safeLoad("./routes/posts", [upload]);
+const commentRoutes = safeLoad("./routes/comments", [io]);
+const likeRoutes = safeLoad("./routes/likes", [io]);
+const friendRoutes = safeLoad("./routes/friend_requests", [io]);
+const messageRoutes = safeLoad("./routes/messages", [io]);
+const notificationRoutes = safeLoad("./routes/notifications", [io]);
 
 // Apply routes
 app.use("/api/users", userRoutes);
@@ -49,7 +63,30 @@ app.use("/api/comments", commentRoutes);
 app.use("/api/likes", likeRoutes);
 app.use("/api/friend_requests", friendRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/notifications", notificationRoutes);
+
+// Home route
+app.get("/", (req, res) => res.send("API is running ✅"));
+
+// Socket.IO
+io.on("connection", (socket) => {
+  console.log("🔌 Socket connected:", socket.id);
+
+  socket.on("join", (userId) => {
+    socket.join(`user-${userId}`);
+    console.log(`👤 User ${userId} joined room user-${userId}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ Socket disconnected:", socket.id);
+  });
+});
 
 // Start server
 const PORT = process.env.PORT || 5000;
-http.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+http.listen(PORT, () =>
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+);
+
+// Export for route use
+module.exports.io = io;

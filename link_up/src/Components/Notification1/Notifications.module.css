@@ -1,0 +1,16 @@
+.text-mint {
+    color: #00c9a7;
+  }
+  
+  .bg-mint {
+    background-color: #e6fff9 !important;
+  }
+  
+  .notificationItem {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .notificationItem:hover {
+    background-color: #dffbf3 !important;
+  }  

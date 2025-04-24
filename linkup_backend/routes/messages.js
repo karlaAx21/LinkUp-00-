@@ -63,7 +63,7 @@ module.exports = function (io) {
       console.log(`🟢 User ${userId} joined room user-${userId}`);
     });
 
-    // ✅ Send a message
+    // ✅ Send a message with notification
     socket.on("sendMessage", async ({ senderId, receiverId, content }) => {
       try {
         const [result] = await pool.query(
@@ -80,7 +80,23 @@ module.exports = function (io) {
         io.to(`user-${receiverId}`).emit("receiveMessage", savedMsg[0]);
         io.to(`user-${senderId}`).emit("receiveMessage", savedMsg[0]);
 
-        // Check for new conversation (first 1-2 messages)
+        // 🔔 Send real-time notification to receiver
+        const [[senderInfo]] = await pool.query(
+          "SELECT CONCAT(FirstName, ' ', LastName) AS name FROM users WHERE id = ?",
+          [senderId]
+        );
+
+        if (senderInfo) {
+          io.to(`user-${receiverId}`).emit("notification", {
+            type: "message",
+            fromUserId: senderId,
+            toUserId: receiverId,
+            message: `${senderInfo.name} sent you a message.`,
+            createdAt: new Date(),
+          });
+        }
+
+        // ✅ Check for new conversation
         const [existing] = await pool.query(
           `SELECT id FROM messages 
            WHERE (senderId = ? AND receiverId = ?) 

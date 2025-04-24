@@ -1,71 +1,108 @@
 const express = require("express");
-const router = express.Router();
 const pool = require("../db");
 
-// POST send a friend request
-router.post("/", async (req, res) => {
-  const { senderId, receiverId } = req.body;
-  if (!senderId || !receiverId) {
-    return res.status(400).json({ error: "Missing senderId or receiverId" });
-  }
+module.exports = function (io) {
+  const router = express.Router();
 
-  try {
-    const [existing] = await pool.query(
-      "SELECT * FROM friend_requests WHERE senderId = ? AND receiverId = ? AND status = 'pending'",
-      [senderId, receiverId]
-    );
-
-    if (existing.length > 0) {
-      return res.status(409).json({ error: "Friend request already sent" });
+  // POST send a friend request
+  router.post("/", async (req, res) => {
+    const { senderId, receiverId } = req.body;
+    if (!senderId || !receiverId) {
+      return res.status(400).json({ error: "Missing senderId or receiverId" });
     }
 
-    await pool.query(
-      "INSERT INTO friend_requests (senderId, receiverId) VALUES (?, ?)",
-      [senderId, receiverId]
-    );
+    try {
+      const [existing] = await pool.query(
+        "SELECT * FROM friend_requests WHERE senderId = ? AND receiverId = ? AND status = 'pending'",
+        [senderId, receiverId]
+      );
 
-    res.status(201).json({ message: "Friend request sent" });
-  } catch (err) {
-    console.error("Send request error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+      if (existing.length > 0) {
+        return res.status(409).json({ error: "Friend request already sent" });
+      }
 
-// GET all friend requests for a user
-router.get("/:userId", async (req, res) => {
-  const { userId } = req.params;
-  try {
-    const [requests] = await pool.query(
-      "SELECT * FROM friend_requests WHERE senderId = ? OR receiverId = ?",
-      [userId, userId]
-    );
-    res.json(requests);
-  } catch (err) {
-    console.error("Fetch requests error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+      const [senderInfo] = await pool.query(
+        "SELECT CONCAT(FirstName, ' ', LastName) AS name FROM users WHERE id = ?",
+        [senderId]
+      );
 
-// PUT accept or reject a request
-router.put("/:id", async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
+      await pool.query(
+        "INSERT INTO friend_requests (senderId, receiverId) VALUES (?, ?)",
+        [senderId, receiverId]
+      );
 
-  if (!["accepted", "rejected"].includes(status)) {
-    return res.status(400).json({ error: "Invalid status" });
-  }
+      // 🔔 Emit real-time notification to receiver
+      io.to(`user-${receiverId}`).emit("notification", {
+        type: "friend_request",
+        fromUserId: senderId,
+        toUserId: receiverId,
+        message: `${senderInfo[0].name} sent you a friend request.`,
+        createdAt: new Date(),
+      });
 
-  try {
-    await pool.query("UPDATE friend_requests SET status = ? WHERE id = ?", [status, id]);
-    res.json({ message: `Friend request ${status}` });
-  } catch (err) {
-    console.error("Update request error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+      res.status(201).json({ message: "Friend request sent" });
+    } catch (err) {
+      console.error("Send request error:", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
 
-// DELETE /friend_requests/:userId/:friendId
-router.delete("/friend_requests/:userId/:friendId", async (req, res) => {
+  // GET all friend requests for a user
+  router.get("/:userId", async (req, res) => {
+    const { userId } = req.params;
+    try {
+      const [requests] = await pool.query(
+        "SELECT * FROM friend_requests WHERE senderId = ? OR receiverId = ?",
+        [userId, userId]
+      );
+      res.json(requests);
+    } catch (err) {
+      console.error("Fetch requests error:", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  // PUT accept or reject a request
+  router.put("/:id", async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!["accepted", "rejected"].includes(status)) {
+      return res.status(400).json({ error: "Invalid status" });
+    }
+
+    try {
+      await pool.query("UPDATE friend_requests SET status = ? WHERE id = ?", [status, id]);
+
+      if (status === "accepted") {
+        const [[request]] = await pool.query(
+          "SELECT senderId, receiverId FROM friend_requests WHERE id = ?",
+          [id]
+        );
+
+        const [receiverInfo] = await pool.query(
+          "SELECT CONCAT(FirstName, ' ', LastName) AS name FROM users WHERE id = ?",
+          [request.receiverId]
+        );
+
+        io.to(`user-${request.senderId}`).emit("notification", {
+          type: "friend_accepted",
+          fromUserId: request.receiverId,
+          toUserId: request.senderId,
+          message: `${receiverInfo[0].name} accepted your friend request.`,
+          createdAt: new Date(),
+        });
+      }
+
+      res.json({ message: `Friend request ${status}` });
+    } catch (err) {
+      console.error("Update request error:", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  // DELETE accepted friendship
+  router.delete("/friend_requests/:userId/:friendId", async (req, res) => {
     const { userId, friendId } = req.params;
     try {
       await pool.query(
@@ -81,4 +118,5 @@ router.delete("/friend_requests/:userId/:friendId", async (req, res) => {
     }
   });
 
-module.exports = router;
+  return router; // ✅ This is what allows your server.js to work
+};

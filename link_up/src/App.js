@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./Components/Sidebar/Layout";
 import HomePage from "./HomePage";
@@ -7,13 +7,36 @@ import Signup from "./Components/LoginSignup/Signup";
 import Feed from "./Components/Feed/Feed";
 import Profile from "./Components/Profile/Profile";
 import CustomizeProfile from "./Components/Profile/EditProfile";
-import Messages from "./Components/Messages/Messages"; // ✅ NEW
-import Friends from "./Components/Friends/Friends";   // ✅ NEW
-import Explore from "./Components/Explore/Explore";   // ✅ NEW
-import Notifications from "./Components/Notification1/Notifications"; // ✅ NEW
+import Messages from "./Components/Messages/Messages";
+import Friends from "./Components/Friends/Friends";
+import Explore from "./Components/Explore/Explore";
+import Notifications from "./Components/Notification1/Notifications";
 import { UserProvider } from "./contextProvider";
 
+import io from "socket.io-client";
+
+const socket = io("http://localhost:5000"); // adjust if your backend URL is different
+
 function LinkUp() {
+  useEffect(() => {
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+    if (currentUser?.id) {
+      socket.emit("join", currentUser.id);
+
+      socket.on("notification", (data) => {
+        console.log("🔔 Notification received:", data);
+
+        // 🔔 You can replace this with a toast or badge update logic
+        alert(`${data.fromUsername} ${data.message}`);
+      });
+    }
+
+    return () => {
+      socket.off("notification");
+    };
+  }, []);
+
   return (
     <UserProvider>
       <Router>

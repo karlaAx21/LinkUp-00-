@@ -1,62 +1,87 @@
 const express = require("express");
-const router = express.Router();
 const pool = require("../db");
 
-// GET like status for a post and user
-router.get("/check", async (req, res) => {
-  const { postId, userId } = req.query;
-  if (!postId || !userId) {
-    return res.status(400).json({ error: "Missing postId or userId" });
-  }
+module.exports = function (io) {
+  const router = express.Router();
 
-  try {
-    const [rows] = await pool.query(
-      "SELECT * FROM likes WHERE postId = ? AND userId = ?",
-      [postId, userId]
-    );
-    res.json({ liked: rows.length > 0 });
-  } catch (err) {
-    console.error("Check like error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+  // GET like status
+  router.get("/check", async (req, res) => {
+    const { postId, userId } = req.query;
+    if (!postId || !userId) {
+      return res.status(400).json({ error: "Missing postId or userId" });
+    }
 
-// POST a like
-router.post("/", async (req, res) => {
-  const { postId, userId } = req.body;
-  if (!postId || !userId) {
-    return res.status(400).json({ error: "Missing postId or userId" });
-  }
+    try {
+      const [rows] = await pool.query(
+        "SELECT * FROM likes WHERE postId = ? AND userId = ?",
+        [postId, userId]
+      );
+      res.json({ liked: rows.length > 0 });
+    } catch (err) {
+      console.error("Check like error:", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
 
-  try {
-    await pool.query(
-      "INSERT INTO likes (postId, userId) VALUES (?, ?)",
-      [postId, userId]
-    );
-    res.status(201).json({ message: "Liked" });
-  } catch (err) {
-    console.error("Add like error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+  // POST like
+  router.post("/", async (req, res) => {
+    const { postId, userId } = req.body;
+    if (!postId || !userId) {
+      return res.status(400).json({ error: "Missing postId or userId" });
+    }
 
-// DELETE a like (unlike)
-router.delete("/", async (req, res) => {
-  const { postId, userId } = req.body;
-  if (!postId || !userId) {
-    return res.status(400).json({ error: "Missing postId or userId" });
-  }
+    try {
+      await pool.query(
+        "INSERT INTO likes (postId, userId) VALUES (?, ?)",
+        [postId, userId]
+      );
 
-  try {
-    await pool.query(
-      "DELETE FROM likes WHERE postId = ? AND userId = ?",
-      [postId, userId]
-    );
-    res.json({ message: "Unliked" });
-  } catch (err) {
-    console.error("Remove like error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+      const [[post]] = await pool.query(
+        "SELECT userId FROM posts WHERE id = ?",
+        [postId]
+      );
 
-module.exports = router;
+      const [[liker]] = await pool.query(
+        "SELECT CONCAT(FirstName, ' ', LastName) AS name FROM users WHERE id = ?",
+        [userId]
+      );
+
+      if (post && post.userId !== userId) {
+        io.to(`user-${post.userId}`).emit("notification", {
+          type: "like",
+          fromUserId: userId,
+          toUserId: post.userId,
+          postId,
+          message: `${liker.name} liked your post.`,
+          createdAt: new Date(),
+        });
+      }
+
+      res.status(201).json({ message: "Liked" });
+    } catch (err) {
+      console.error("Add like error:", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  // DELETE unlike
+  router.delete("/", async (req, res) => {
+    const { postId, userId } = req.body;
+    if (!postId || !userId) {
+      return res.status(400).json({ error: "Missing postId or userId" });
+    }
+
+    try {
+      await pool.query(
+        "DELETE FROM likes WHERE postId = ? AND userId = ?",
+        [postId, userId]
+      );
+      res.json({ message: "Unliked" });
+    } catch (err) {
+      console.error("Remove like error:", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  return router; // ✅ Don't forget this
+};
