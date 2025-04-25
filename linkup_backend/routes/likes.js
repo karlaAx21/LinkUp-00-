@@ -83,5 +83,34 @@ module.exports = function (io) {
     }
   });
 
+// GET all posts liked by a specific user
+router.get("/liked/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const [likedPosts] = await pool.query(
+      `SELECT 
+        posts.*, 
+        CONCAT(users.FirstName, ' ', users.LastName) AS authorName,
+        JSON_ARRAYAGG(
+          JSON_OBJECT('url', media.url, 'type', media.type)
+        ) AS media
+      FROM likes
+      JOIN posts ON likes.postId = posts.id
+      JOIN users ON posts.userId = users.id
+      LEFT JOIN media ON media.postId = posts.id
+      WHERE likes.userId = ?
+      GROUP BY posts.id
+      ORDER BY likes.createdAt DESC`,
+      [userId]
+    );    
+
+    res.json(likedPosts);
+  } catch (err) {
+    console.error("Error fetching liked posts:", err);
+    res.status(500).json({ error: "Failed to fetch liked posts" });
+  }
+});
+
   return router; // ✅ Don't forget this
 };

@@ -7,8 +7,6 @@ module.exports = (upload) => {
   // GET all posts
   router.get("/", async (req, res) => {
     try {
- 
-
       const [posts] = await pool.query(`
         SELECT posts.*, users.FirstName, users.LastName, users.ProfilePic,
           CONCAT(LEFT(users.FirstName, 1), LEFT(users.LastName, 1)) AS authorInitials,
@@ -31,6 +29,38 @@ module.exports = (upload) => {
     } catch (err) {
       console.error("Fetch posts error:", err);
       res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  // ✅ GET posts by a specific user (NEW)
+  router.get("/user/:userId", async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+      const [posts] = await pool.query(
+        `SELECT posts.*, users.FirstName, users.LastName, users.ProfilePic,
+          CONCAT(LEFT(users.FirstName, 1), LEFT(users.LastName, 1)) AS authorInitials,
+          CONCAT(users.FirstName, ' ', users.LastName) AS authorName,
+          (SELECT COUNT(*) FROM likes WHERE likes.postId = posts.id) AS likeCount
+         FROM posts
+         JOIN users ON posts.userId = users.id
+         WHERE posts.userId = ?
+         ORDER BY posts.createdAt DESC`,
+        [userId]
+      );
+
+      for (const post of posts) {
+        const [media] = await pool.query(
+          "SELECT url, type FROM media WHERE postId = ?",
+          [post.id]
+        );
+        post.media = media || [];
+      }
+
+      res.json(posts);
+    } catch (err) {
+      console.error("Fetch user's posts error:", err);
+      res.status(500).json({ error: "Failed to fetch user's posts" });
     }
   });
 
