@@ -2,9 +2,9 @@ import React, { useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { UserContext } from "../../contextProvider";
 import io from "socket.io-client";
-import styles from "./Sidebar.module.css"; // ✅ using styles now
+import styles from "./Sidebar.module.css";
 
-const socket = io("http://localhost:5000");
+const socket = io("http://localhost:5001");
 
 const Sidebar = () => {
   const { user } = useContext(UserContext);
@@ -28,22 +28,17 @@ const Sidebar = () => {
       </h1>
 
       <div className="mb-4 w-100 text-center">
-        {user?.ProfilePic ? (
-          <img
-          src={`http://localhost:5000/users/${user.id}/profile-pic?${Date.now()}`}
-          alt="Avatar"
-            className="rounded-circle mb-2 shadow-sm border"
-            style={{ width: "70px", height: "70px", objectFit: "cover" }}
-          />
-        ) : (
-          <div
-            className={`rounded-circle mb-2 shadow-sm ${styles.avatarFallback}`}
-            style={{ width: "70px", height: "70px" }}
-          >
-            {user?.FirstName?.[0] ?? "U"}
-            {user?.LastName?.[0] ?? ""}
-          </div>
-        )}
+      <img
+        src={`http://localhost:5001/users/${user.id}/profile-pic?${Date.now()}`}
+        alt="Avatar"
+        className="rounded-circle mb-2 shadow-sm border"
+        style={{ width: "70px", height: "70px", objectFit: "cover" }}
+        onError={(e) => {
+          e.target.onerror = null;
+          e.target.src = "/default.jpg"; 
+        }}
+      />
+
         <div className="fw-semibold">{user?.FirstName} {user?.LastName}</div>
         <div className="text-muted small">@{user?.Username}</div>
       </div>

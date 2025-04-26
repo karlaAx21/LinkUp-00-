@@ -4,8 +4,8 @@ import { useLocation } from "react-router-dom";
 import io from "socket.io-client";
 import "./Messages.module.css";
 
-const API = "http://localhost:5000/api";
-const socket = io("http://localhost:5000");
+const API = "http://localhost:5001/api";
+const socket = io("http://localhost:5001");
 
 const Messages = () => {
   const [selectedContact, setSelectedContact] = useState(null);

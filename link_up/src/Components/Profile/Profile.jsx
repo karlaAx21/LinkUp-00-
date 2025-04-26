@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import PostCard from "../PostCard/PostCard"; // ✅ ADD THIS!
+import PostCard from "../PostCard/PostCard"; // Make sure PostCard component is imported
 import styles from "./Profile.module.css";
 
 const ProfilePage = () => {
@@ -17,7 +17,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/users/username/${username}`);
+        const res = await fetch(`http://localhost:5001/api/users/username/${username}`);
         const data = await res.json();
         setProfileUser(data);
         setLoading(false);
@@ -35,14 +35,14 @@ const ProfilePage = () => {
     if (!profileUser?.id) return;
 
     if (tab === "liked") {
-      fetch(`http://localhost:5000/api/likes/liked/${profileUser.id}`)
+      fetch(`http://localhost:5001/api/likes/liked/${profileUser.id}`)
         .then(res => res.json())
         .then(data => setLikedPosts(data))
         .catch(err => console.error("Failed to fetch liked posts:", err));
     }
 
     if (tab === "posts") {
-      fetch(`http://localhost:5000/api/posts/user/${profileUser.id}`)
+      fetch(`http://localhost:5001/api/posts/user/${profileUser.id}`)
         .then(res => res.json())
         .then(data => setUserPosts(data))
         .catch(err => console.error("Failed to fetch user's posts:", err));
@@ -52,7 +52,7 @@ const ProfilePage = () => {
   if (loading) return <div className="text-center mt-5 text-muted">Loading...</div>;
   if (!profileUser) return <div className="text-center mt-5 text-danger">User not found.</div>;
 
-  const backgroundImage = `http://localhost:5000/api/users/background/${profileUser.id}?t=${timestamp}`;
+  const backgroundImage = `http://localhost:5001/api/users/background/${profileUser.id}?t=${timestamp}`;
   const aboutMeHTML = profileUser.AboutMe || "<p>No info yet.</p>";
 
   return (
@@ -90,7 +90,7 @@ const ProfilePage = () => {
               <button className={`nav-link ${tab === "liked" ? "active" : ""}`} onClick={() => setTab("liked")}>Liked</button>
             </li>
             <li className="nav-item">
-              <button className="nav-link" disabled>Settings</button>
+              <button className={`nav-link ${tab === "settings" ? "active" : ""}`} onClick={() => setTab("settings")}>Settings</button>
             </li>
           </ul>
         </div>
@@ -107,13 +107,13 @@ const ProfilePage = () => {
             }}>
               <div className="d-flex justify-content-center pb-3">
                 <img
-                  src={`http://localhost:5000/users/${profileUser.id}/profile-pic?t=${timestamp}`}
+                  src={`http://localhost:5001/users/${profileUser.id}/profile-pic?t=${timestamp}`}
                   alt="Profile"
                   className="rounded-circle"
                   style={{ width: "120px", height: "120px", objectFit: "cover" }}
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = "/dad.gif";
+                    e.target.src = "/default.jpg";
                   }}
                 />
               </div>
@@ -128,7 +128,7 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Right Side - Info */}
+          {/* Right Side Content */}
           <div className="col-md-8">
             {tab === "profile" && (
               <div className="card p-4 mb-4" style={{
@@ -148,59 +148,41 @@ const ProfilePage = () => {
                 </div>
               </div>
             )}
+
+            {tab === "posts" && (
+              <div className="card p-4 mb-4" style={{ backgroundColor: profileUser.background_color || "rgba(255, 255, 255, 0.1)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.3)" }}>
+                <h5>Posts Created</h5>
+                {userPosts.length > 0 ? (
+                  userPosts.map(post => (
+                    <PostCard key={post.id} post={post} />
+                  ))
+                ) : (
+                  <p className="text-muted">No posts yet.</p>
+                )}
+              </div>
+            )}
+
+            {tab === "liked" && (
+              <div className="card p-4 mb-4" style={{ backgroundColor: profileUser.background_color || "rgba(255, 255, 255, 0.1)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.3)" }}>
+                <h5>Liked Posts</h5>
+                {likedPosts.length > 0 ? (
+                  likedPosts.map(post => (
+                    <PostCard key={post.id} post={post} />
+                  ))
+                ) : (
+                  <p className="text-muted">No liked posts yet.</p>
+                )}
+              </div>
+            )}
+
+            {tab === "settings" && (
+              <div className="card p-4 mb-4" style={{ backgroundColor: profileUser.background_color || "rgba(255, 255, 255, 0.1)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.3)" }}>
+                <h5>Settings</h5>
+                <p className="text-muted">Settings page coming soon!</p>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Full-Width Posts / Liked Section */}
-        {(tab === "posts" || tab === "liked") && (
-          <div className="container pb-4">
-            <div className="card p-4" style={{
-              backgroundColor: profileUser.background_color || "rgba(255, 255, 255, 0.1)",
-              backdropFilter: "blur(10px)",
-              WebkitBackdropFilter: "blur(10px)",
-              borderRadius: "12px",
-              border: "1px solid rgba(255, 255, 255, 0.3)"
-            }}>
-              {tab === "posts" && (
-                <>
-                  <h5 className="mb-3">Posts Created</h5>
-                  {userPosts.length > 0 ? (
-                    userPosts.map(post => (
-                      <PostCard
-                        key={post.id}
-                        post={post}
-                        onPostDeleted={(id) =>
-                          setUserPosts((prev) => prev.filter((p) => p.id !== id))
-                        }
-                      />
-                    ))
-                  ) : (
-                    <p className="text-muted">No posts yet.</p>
-                  )}
-                </>
-              )}
-
-              {tab === "liked" && (
-                <>
-                  <h5 className="mb-3">Liked Posts</h5>
-                  {likedPosts.length > 0 ? (
-                    likedPosts.map(post => (
-                      <PostCard
-                        key={post.id}
-                        post={post}
-                        onPostDeleted={(id) =>
-                          setLikedPosts((prev) => prev.filter((p) => p.id !== id))
-                        }
-                      />
-                    ))
-                  ) : (
-                    <p className="text-muted">No liked posts yet.</p>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -20,15 +20,14 @@ const CustomizeProfile = () => {
 
   useEffect(() => {
     if (user && user.Username) {
-      fetch(`http://localhost:5000/api/users/${user.id}`)
+      fetch(`http://localhost:5001/api/users/${user.id}`)
         .then(res => res.json())
         .then(fresh => {
           setCardColor(fresh.background_color || "#ffffff");
           setOriginalCardColor(fresh.background_color || "#ffffff");
           setHtmlInput(fresh.AboutMe || "");
           setOriginalAboutMe(fresh.AboutMe || "");
-          setBgUrl(fresh.background_url || "");
-          setProfilePicUrl(`http://localhost:5000/users/${fresh.id}/profile-pic`);
+          setProfilePicUrl(`http://localhost:5001/users/${fresh.id}/profile-pic`);
           localStorage.setItem("currentUser", JSON.stringify(fresh));
         })
         .catch(err => {
@@ -50,19 +49,18 @@ const CustomizeProfile = () => {
 
     try {
       setUploadingBg(true);
-      const res = await fetch("http://localhost:5000/api/users/upload-background", {
+      const res = await fetch("http://localhost:5001/api/users/upload-background", {
         method: "POST",
         body: formData,
       });
 
       const data = await res.json();
       if (data.url) {
-        const fullUrl = `http://localhost:5000${data.url}`;
+        const fullUrl = `http://localhost:5001${data.url}`;
         setBgUrl(fullUrl);
       
         const updatedUser = {
           ...user,
-          background_url: fullUrl,
         };
       
         localStorage.setItem("currentUser", JSON.stringify(updatedUser));
@@ -84,14 +82,22 @@ const CustomizeProfile = () => {
     setProfilePicUrl(URL.createObjectURL(file)); // show local preview only
   };
   
-
+  const [stagedCoverPhoto, setStagedCoverPhoto] = useState(null);
+  const [coverPhotoUrl, setCoverPhotoUrl] = useState("");
+  
+  const handleCoverPhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file || !file.type.startsWith("image/")) return;
+  
+    setStagedCoverPhoto(file);
+    setCoverPhotoUrl(URL.createObjectURL(file)); // Show preview
+  };
+  
   const handleSave = async () => {
     try {
       const trimmedAboutMe = htmlInput.trim();
       const trimmedColor = cardColor.trim();
-      const updatedFields = {
-        background_url: bgUrl,
-      };
+      const updatedFields = {};
   
       if (trimmedAboutMe !== originalAboutMe.trim()) {
         updatedFields.AboutMe = trimmedAboutMe;
@@ -106,25 +112,38 @@ const CustomizeProfile = () => {
         formData.append("profilePic", stagedProfilePic);
         formData.append("userId", user.id);
   
-        const res = await fetch("http://localhost:5000/api/users/upload-profile-pic", {
+        const res = await fetch("http://localhost:5001/api/users/upload-profile-pic", {
           method: "POST",
           body: formData,
         });
   
         if (!res.ok) throw new Error("Failed to upload profile picture.");
       }
-  
-      await fetch(`http://localhost:5000/api/users/update-profile/${user.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedFields),
-      });
+      if (stagedCoverPhoto) {
+        const formData = new FormData();
+        formData.append("coverPhoto", stagedCoverPhoto);
+        formData.append("userId", user.id);
+      
+        const res = await fetch("http://localhost:5001/api/users/upload-cover-photo", {
+          method: "POST",
+          body: formData,
+        });
+      
+        if (!res.ok) throw new Error("Failed to upload cover photo.");
+      }
+      
+      if (Object.keys(updatedFields).length > 0) {
+        await fetch(`http://localhost:5001/api/users/update-profile/${user.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedFields),
+        });
+      }
   
       const updatedUser = {
         ...user,
         ...(trimmedAboutMe !== originalAboutMe.trim() && { AboutMe: trimmedAboutMe }),
         ...(trimmedColor !== originalCardColor.trim() && { background_color: trimmedColor }),
-        background_url: bgUrl,
       };
   
       localStorage.setItem("currentUser", JSON.stringify(updatedUser));
@@ -160,6 +179,24 @@ const CustomizeProfile = () => {
             onChange={(e) => setHtmlInput(e.target.value)}
           />
         </div>
+      </div>
+      <div className="card p-4 mb-4">
+        <h5 className="mb-3">Change Cover Photo</h5>
+        <input
+          type="file"
+          className="form-control"
+          accept="image/*"
+          onChange={handleCoverPhotoChange}
+        />
+        {coverPhotoUrl && (
+          <div className="mt-3 text-center">
+            <img
+              src={coverPhotoUrl}
+              alt="Cover Preview"
+              style={{ maxWidth: "100%", maxHeight: "200px", borderRadius: "5px" }}
+            />
+          </div>
+        )}
       </div>
 
       <div className="card p-4 mb-4">

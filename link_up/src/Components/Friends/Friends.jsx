@@ -3,7 +3,7 @@ import styles from "./Friends.module.css";
 import { Button, Card, Nav, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
-const API = "http://localhost:5000/api";
+const API = "http://localhost:5001/api";
 
 const Friends = () => {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));

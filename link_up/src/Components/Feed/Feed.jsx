@@ -15,7 +15,7 @@ const Feed = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const fileInputRef = useRef(null); // Used to reset file input
 
-  const API = "http://localhost:5000/api";
+  const API = "http://localhost:5001/api";
 
   const navigate = useNavigate();
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));

@@ -15,7 +15,7 @@ import { UserProvider } from "./contextProvider";
 
 import io from "socket.io-client";
 
-const socket = io("http://localhost:5000"); // adjust if your backend URL is different
+const socket = io("http://localhost:5001"); // adjust if your backend URL is different
 
 function LinkUp() {
   useEffect(() => {

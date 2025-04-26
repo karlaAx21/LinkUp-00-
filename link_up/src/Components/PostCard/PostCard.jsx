@@ -22,7 +22,7 @@ const PostCard = ({ post, onPostDeleted }) => {
 
   const [pendingCommentDelete, setPendingCommentDelete] = useState(null);
 
-  const API = "http://localhost:5000/api";
+  const API = "http://localhost:5001/api";
 
   useEffect(() => {
     if (!currentUser) return;
@@ -342,7 +342,7 @@ const PostCard = ({ post, onPostDeleted }) => {
               file.type === "image" ? (
                 <img
                   key={index}
-                  src={`http://localhost:5000${file.url}`}
+                  src={`http://localhost:5001${file.url}`}
                   alt={`media-${index}`}
                   className="img-fluid rounded mb-3"
                 />
@@ -353,7 +353,7 @@ const PostCard = ({ post, onPostDeleted }) => {
                   className="img-fluid rounded mb-3"
                   style={{ maxHeight: "500px" }}
                 >
-                  <source src={`http://localhost:5000${file.url}`} type="video/mp4" />
+                  <source src={`http://localhost:5001${file.url}`} type="video/mp4" />
                 </video>
               )
             )}

@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import styles from "./Notifications.module.css";
 
-const socket = io("http://localhost:5000");
-const API = "http://localhost:5000/api";
+const socket = io("http://localhost:5001");
+const API = "http://localhost:5001/api";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
