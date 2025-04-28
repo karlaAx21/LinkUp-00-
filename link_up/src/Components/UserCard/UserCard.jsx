@@ -8,7 +8,6 @@ const UserCard = ({ user }) => {
       <Link to={`/profile/${user.Username}`} className={styles.username}>
         <h4>{user.Username}</h4>
       </Link>
-      <button className={styles.followBtn}>Follow</button>
     </div>
   );
 };

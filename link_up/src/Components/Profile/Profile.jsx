@@ -37,7 +37,9 @@ const ProfilePage = () => {
           const bgImg = new Image();
           bgImg.src = `http://localhost:5001/api/users/background/${data.id}?t=${Date.now()}`;
           bgImg.onload = resolve;
+          bgImg.onerror = resolve; // <- ADD THIS
         });
+        
   
         const coverPromise = new Promise((resolve) => {
           if (data.CoverPhoto) {
@@ -246,7 +248,8 @@ const ProfilePage = () => {
                 </div>
               </div>
             )}
-              {tab === "profile" && profileUser.themeSongUrl?.trim() !== "" && (
+              {tab === "profile" && profileUser.themeSongUrl &&
+              profileUser.themeSongUrl?.trim() !== "" && (
               <div className="card p-4 mb-4" style={{
                 backgroundColor: profileUser.background_color || "rgba(255, 255, 255, 0.1)",
                 backdropFilter: "blur(10px)",
