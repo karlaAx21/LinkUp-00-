@@ -1,11 +1,11 @@
 import React, { useState, useContext } from "react";
 import styles from "./LoginSignup.module.css";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../../contextProvider"; // ✅ added
+import { UserContext } from "../../contextProvider"; 
 
 const Login = () => {
   const navigate = useNavigate();
-  const { setUser } = useContext(UserContext); // ✅ added
+  const { setUser } = useContext(UserContext); 
   const [formData, setFormData] = useState({ Username: "", Password: "" });
   const [error, setError] = useState("");
 
@@ -23,17 +23,17 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const payload = {
-      Username: formData.Username.trim(),
+      loginId: formData.Username.trim(),
       Password: formData.Password.trim(),
     };
-
-    if (!payload.Username || !payload.Password) {
+  
+    if (!payload.loginId || !payload.Password) {
       setError("Please enter both username and password.");
       return;
     }
-
+  
     try {
       const res = await fetch("http://localhost:5001/api/users/login", {
         method: "POST",
@@ -42,23 +42,25 @@ const Login = () => {
         },
         body: JSON.stringify(payload),
       });
-
-      const user = await res.json();
-      console.log("Logged in user:", user); // Debugging log
-
-      if (!res.ok || !user.id) {
-        setError(user.error || "Login failed");
+  
+      const data = await res.json(); // ✅ you get 'data'
+  
+      if (!res.ok || !data.user?.id) {
+        setError(data.error || "Login failed"); // ✅ use data.error
         return;
       }
-
-      localStorage.setItem("currentUser", JSON.stringify(user));
-      setUser(user); // ✅ set in context so EditProfile/Profile gets it
+  
+      localStorage.setItem("currentUser", JSON.stringify(data.user)); // ✅ store data.user
+      localStorage.setItem("token", data.token); // ✅ store token if needed
+  
+      setUser(data.user); // ✅ set user correctly
       navigate("/feed");
     } catch (err) {
       console.error("Login error:", err);
       setError("Something went wrong. Please try again.");
     }
   };
+  
 
   return (
     <div className={styles.authPage}>

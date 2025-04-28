@@ -5,6 +5,8 @@ const multer = require("multer");
 const db = require("../db");
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+const authenticateToken = require("../Authenticate/authenticateToken");
+
 router.get("/username/:username", async (req, res) => {
   const { username } = req.params;
 
@@ -50,11 +52,12 @@ router.post("/", async (req, res) => {
     if (existing.length > 0) {
       return res.status(409).json({ error: "Username or email already exists" });
     }
+    const hashedPassword = await bcrypt.hash(Password, 10);
 
     const [result] = await pool.query(
       `INSERT INTO users (FirstName, LastName, Username, email, Password, ProfilePic)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [FirstName, LastName, Username, email, Password, ProfilePic || null]
+      [FirstName, LastName, Username, email, hashedPassword, ProfilePic || null]
     );
     res.status(201).json({ message: "User created", userId: result.insertId });
   } catch (err) {
@@ -64,44 +67,66 @@ router.post("/", async (req, res) => {
 });
 
 // POST login
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
 router.post("/login", async (req, res) => {
-  const { Username, Password } = req.body;
-  if (!Username || !Password) {
-    return res.status(400).json({ error: "Missing username or password" });
+  const { loginId, Password } = req.body; // ✅ loginId can be username OR email
+
+  if (!loginId || !Password) {
+    return res.status(400).json({ error: "Username/Email and Password are required." });
   }
 
   try {
-    const [users] = await pool.query(
-      "SELECT * FROM users WHERE Username = ? AND Password = ?",
-      [Username, Password]
+    const [users] = await db.execute(
+      "SELECT * FROM users WHERE Username = ? OR email = ?",
+      [loginId, loginId] // ✅ Try matching username OR email
     );
 
-    if (users.length > 0) {
-      const user = users[0];
-      console.log("Login success, user:", user);
+    if (users.length === 0) {
+      return res.status(404).json({ error: "User not found." });
+    }
 
-      res.json({
+    const user = users[0];
+
+    const passwordMatch = await bcrypt.compare(Password, user.Password);
+
+    if (!passwordMatch) {
+      return res.status(401).json({ error: "Incorrect password." });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, Username: user.Username },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({
+      token,
+      user: {
         id: user.id,
         Username: user.Username,
         FirstName: user.FirstName,
         LastName: user.LastName,
-        ProfilePic: user.ProfilePic,
         email: user.email,
         AboutMe: user.AboutMe,
-            });
-    } else {
-      res.status(401).json({ error: "Invalid credentials" });
-    }
+        background_color: user.background_color,
+      },
+    });
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: "Login failed." });
   }
 });
+
 // PUT update profile info (about me, background_color)
-router.put("/update-profile/:id", async (req, res) => {
+router.put("/update-profile/:id", authenticateToken, async (req, res) => {
   const { AboutMe, background_color } = req.body;
   const { id } = req.params;
-
+  if (parseInt(req.user.id) !== parseInt(id)) {
+    return res.status(403).json({ error: "Forbidden. You can only edit your own profile." });
+  }
+  
   try {
     const [rows] = await db.execute("SELECT * FROM users WHERE id = ?", [id]);
     if (rows.length === 0) {
@@ -171,41 +196,37 @@ router.get("/background/:userId", async (req, res) => {
 // insert new pfp to db
 router.post("/upload-profile-pic", upload.single("profilePic"), async (req, res) => {
   const { userId } = req.body;
-
   if (!req.file || !userId) {
-    console.log("âŒ Missing file or userId");
+    console.log("Missing file or userId");
     return res.status(400).json({ error: "Missing file or userId" });
   }
-
   try {
     const [rows] = await db.execute("SELECT id FROM users WHERE id = ?", [userId]);
     if (rows.length === 0) {
       return res.status(404).json({ error: "User not found" });
     }
-
     await db.execute("UPDATE users SET ProfilePic = ? WHERE id = ?", [
       req.file.buffer,
       userId,
     ]);
-
-    console.log("âœ… Profile picture uploaded for user:", userId);
-    res.json({ success: true });
+    res.json({ url: `/users/${userId}/profile-pic` });
   } catch (err) {
-    console.error("ðŸ”¥ Upload failed:", err);
+    console.error("Upload failed:", err);
     res.status(500).json({ error: "Upload failed" });
   }
 });
+
 
 // get pfp from db
 router.get("/users/:id/profile-pic", async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log("ðŸ“¥ Fetching profile pic for user:", userId);
+    console.log("Fetching profile pic for user:", userId);
 
     const [rows] = await db.execute("SELECT ProfilePic FROM users WHERE id = ?", [userId]);
 
     if (!rows[0] || !rows[0].ProfilePic) {
-      console.log("âŒ No profile picture found");
+      console.log("No profile picture found");
       return res.status(404).send("No profile picture found");
     }
 

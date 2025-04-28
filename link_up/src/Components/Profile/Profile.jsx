@@ -7,10 +7,12 @@ import styles from "./Profile.module.css";
 const ProfilePage = () => {
   const { username } = useParams();
   const [profileUser, setProfileUser] = useState(null);
+  const hasCoverPhoto = !!profileUser?.CoverPhoto; 
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("profile");
   const [likedPosts, setLikedPosts] = useState([]);
   const [userPosts, setUserPosts] = useState([]);
+  const [backgroundLoaded, setBackgroundLoaded] = useState(false);
 
   const timestamp = Date.now();
 
@@ -20,6 +22,26 @@ const ProfilePage = () => {
         const res = await fetch(`http://localhost:5001/api/users/username/${username}`);
         const data = await res.json();
         setProfileUser(data);
+  
+        // ⏳ Preload background image
+        const bgPromise = new Promise((resolve) => {
+          const bgImg = new Image();
+          bgImg.src = `http://localhost:5001/api/users/background/${data.id}?t=${Date.now()}`;
+          bgImg.onload = resolve;
+        });
+  
+        const coverPromise = new Promise((resolve) => {
+          if (data.CoverPhoto) {
+            const coverImg = new Image();
+            coverImg.src = `http://localhost:5001/api/users/${data.id}/cover-photo?t=${Date.now()}`;
+            coverImg.onload = resolve;
+          } else {
+            resolve(); 
+          }
+        });
+          await Promise.all([bgPromise, coverPromise]);
+  
+        setBackgroundLoaded(true);
         setLoading(false);
       } catch (err) {
         console.error("Failed to load user:", err);
@@ -27,9 +49,11 @@ const ProfilePage = () => {
         setLoading(false);
       }
     };
-
+  
     fetchUser();
   }, [username]);
+  
+  
 
   useEffect(() => {
     if (!profileUser?.id) return;
@@ -49,8 +73,10 @@ const ProfilePage = () => {
     }
   }, [tab, profileUser?.id]);
 
-  if (loading) return <div className="text-center mt-5 text-muted">Loading...</div>;
-  if (!profileUser) return <div className="text-center mt-5 text-danger">User not found.</div>;
+  if (loading || !backgroundLoaded) {
+    return <div className="text-center mt-5 text-muted">Loading...</div>;
+  }
+    if (!profileUser) return <div className="text-center mt-5 text-danger">User not found.</div>;
 
   const backgroundImage = `http://localhost:5001/api/users/background/${profileUser.id}?t=${timestamp}`;
   const aboutMeHTML = profileUser.AboutMe || "<p>No info yet.</p>";
@@ -68,32 +94,42 @@ const ProfilePage = () => {
       }}
     >
       <div className="container p-4">
-        <div
-          style={{
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
-            borderRadius: "12px",
-            border: "1px solid rgba(255, 255, 255, 0.3)",
-            padding: "10px",
-            marginBottom: "1rem"
-          }}
-        >
-          <ul className="nav nav-tabs mb-0">
-            <li className="nav-item">
-              <button className={`nav-link ${tab === "profile" ? "active" : ""}`} onClick={() => setTab("profile")}>Profile</button>
-            </li>
-            <li className="nav-item">
-              <button className={`nav-link ${tab === "posts" ? "active" : ""}`} onClick={() => setTab("posts")}>Posts</button>
-            </li>
-            <li className="nav-item">
-              <button className={`nav-link ${tab === "liked" ? "active" : ""}`} onClick={() => setTab("liked")}>Liked</button>
-            </li>
-            <li className="nav-item">
-              <button className={`nav-link ${tab === "settings" ? "active" : ""}`} onClick={() => setTab("settings")}>Settings</button>
-            </li>
-          </ul>
-        </div>
+      <div
+        style={{
+          width: "100%",
+          height: "200px",
+          backgroundImage: hasCoverPhoto 
+            ? `url(http://localhost:5001/api/users/${profileUser.id}/cover-photo?t=${timestamp})` 
+            : "none",
+          backgroundColor: hasCoverPhoto ? "transparent" : "rgba(255, 255, 255, 0.1)",
+          backdropFilter: hasCoverPhoto ? "none" : "blur(10px)",
+          WebkitBackdropFilter: hasCoverPhoto ? "none" : "blur(10px)",
+          borderRadius: "12px",
+          border: hasCoverPhoto ? "none" : "1px solid rgba(255, 255, 255, 0.3)",
+          padding: "10px",
+          marginBottom: "1rem",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          position: "relative",
+        }}
+      >
+        <ul className="nav nav-tabs mb-0 justify-content-center" style={{ backgroundColor: hasCoverPhoto ? "rgba(255,255,255,0.2)" : "transparent", borderRadius: "8px" }}>
+          <li className="nav-item">
+            <button className={`nav-link ${tab === "profile" ? "active" : ""}`} onClick={() => setTab("profile")}>Profile</button>
+          </li>
+          <li className="nav-item">
+            <button className={`nav-link ${tab === "posts" ? "active" : ""}`} onClick={() => setTab("posts")}>Posts</button>
+          </li>
+          <li className="nav-item">
+            <button className={`nav-link ${tab === "liked" ? "active" : ""}`} onClick={() => setTab("liked")}>Liked</button>
+          </li>
+          <li className="nav-item">
+            <button className={`nav-link ${tab === "settings" ? "active" : ""}`} onClick={() => setTab("settings")}>Settings</button>
+          </li>
+        </ul>
+      </div>
+
 
         <div className="row p-3">
           {/* Left Side - Profile Card */}
@@ -127,7 +163,6 @@ const ProfilePage = () => {
               )}
             </div>
           </div>
-
           {/* Right Side Content */}
           <div className="col-md-8">
             {tab === "profile" && (
@@ -138,7 +173,7 @@ const ProfilePage = () => {
                 borderRadius: "12px",
                 border: "1px solid rgba(255, 255, 255, 0.3)"
               }}>
-                <h5>Profile Information</h5>
+                <h5>Profile</h5>
                 <p><strong>Username:</strong> @{profileUser.Username}</p>
                 <p><strong>Email:</strong> {profileUser.email}</p>
                 <p><strong>Joined:</strong> {new Date(profileUser.createdAt).toLocaleDateString()}</p>
