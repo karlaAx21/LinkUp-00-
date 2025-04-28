@@ -7,7 +7,7 @@ import styles from "./Profile.module.css";
 const ProfilePage = () => {
   const { username } = useParams();
   const [profileUser, setProfileUser] = useState(null);
-  const hasCoverPhoto = !!profileUser?.CoverPhoto; 
+  const hasCoverPhoto = !!profileUser?.hasCoverPhoto;
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("profile");
   const [likedPosts, setLikedPosts] = useState([]);
@@ -15,15 +15,24 @@ const ProfilePage = () => {
   const [backgroundLoaded, setBackgroundLoaded] = useState(false);
 
   const timestamp = Date.now();
-
+  function detectEmbedType(url) {
+    if (!url) return null;
+    const lower = url.toLowerCase();
+    if (lower.includes("youtube.com") || lower.includes("youtu.be")) return "youtube";
+    if (lower.includes("soundcloud.com")) return "soundcloud";
+    if (lower.includes("twitch.tv")) return "twitch";
+    if (lower.includes("spotify.com")) return "spotify";
+    return "audio";
+  }
+  
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await fetch(`http://localhost:5001/api/users/username/${username}`);
         const data = await res.json();
         setProfileUser(data);
-  
-        // ⏳ Preload background image
+        console.log("[Profile.jsx] User data:", data);
+
         const bgPromise = new Promise((resolve) => {
           const bgImg = new Image();
           bgImg.src = `http://localhost:5001/api/users/background/${data.id}?t=${Date.now()}`;
@@ -93,14 +102,16 @@ const ProfilePage = () => {
         paddingTop: "60px",
       }}
     >
+
+
       <div className="container p-4">
       <div
         style={{
           width: "100%",
           height: "200px",
           backgroundImage: hasCoverPhoto 
-            ? `url(http://localhost:5001/api/users/${profileUser.id}/cover-photo?t=${timestamp})` 
-            : "none",
+          ? `url(http://localhost:5001/api/users/cover-photo/${profileUser.id}?t=${timestamp})`
+          : "none",
           backgroundColor: hasCoverPhoto ? "transparent" : "rgba(255, 255, 255, 0.1)",
           backdropFilter: hasCoverPhoto ? "none" : "blur(10px)",
           WebkitBackdropFilter: hasCoverPhoto ? "none" : "blur(10px)",
@@ -114,6 +125,7 @@ const ProfilePage = () => {
           position: "relative",
         }}
       >
+
         <ul className="nav nav-tabs mb-0 justify-content-center" style={{ backgroundColor: hasCoverPhoto ? "rgba(255,255,255,0.2)" : "transparent", borderRadius: "8px" }}>
           <li className="nav-item">
             <button className={`nav-link ${tab === "profile" ? "active" : ""}`} onClick={() => setTab("profile")}>Profile</button>
@@ -127,12 +139,18 @@ const ProfilePage = () => {
           <li className="nav-item">
             <button className={`nav-link ${tab === "settings" ? "active" : ""}`} onClick={() => setTab("settings")}>Settings</button>
           </li>
+          <li>
+            
+          </li>
+          
         </ul>
+        
       </div>
 
 
         <div className="row p-3">
           {/* Left Side - Profile Card */}
+          
           <div className="col-md-4 mb-4">
             <div className="card text-center p-4" style={{
               backgroundColor: profileUser.background_color || "rgba(255, 255, 255, 0.1)",
@@ -154,7 +172,11 @@ const ProfilePage = () => {
                 />
               </div>
               <h4>{profileUser.FirstName} {profileUser.LastName}</h4>
-              <p className="text-muted">{profileUser.email}</p>
+              <p className="text-muted" style={{ whiteSpace: "pre-wrap" }}>
+                {(profileUser.bio && profileUser.bio.trim() !== "") ? profileUser.bio : "Hello, World!"}
+              </p>
+
+
 
               {profileUser.Username === JSON.parse(localStorage.getItem("currentUser"))?.Username && (
                 <Link to={`/customize-profile/${profileUser.Username}`}>
@@ -162,9 +184,38 @@ const ProfilePage = () => {
                 </Link>
               )}
             </div>
+            {tab === "profile" && profileUser.customImage && (
+              <div
+                className="card p-3 mt-4"
+                style={{
+                  backgroundColor: profileUser.background_color || "rgba(255, 255, 255, 0.1)",
+                  backdropFilter: "blur(10px)",
+                  WebkitBackdropFilter: "blur(10px)",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(255, 255, 255, 0.3)",
+                  textAlign: "center"
+                }}
+              >
+                <img
+                  src={`http://localhost:5001/api/users/custom-image/${profileUser.id}?t=${Date.now()}`}
+                  alt="Custom Image"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    borderRadius: "8px",
+                    objectFit: "cover"
+                  }}
+                  onError={(e) => { e.target.style.display = "none"; }}
+                />
+              </div>
+            )}
+
+
+
           </div>
           {/* Right Side Content */}
           <div className="col-md-8">
+
             {tab === "profile" && (
               <div className="card p-4 mb-4" style={{
                 backgroundColor: profileUser.background_color || "rgba(255, 255, 255, 0.1)",
@@ -175,12 +226,98 @@ const ProfilePage = () => {
               }}>
                 <h5>Profile</h5>
                 <p><strong>Username:</strong> @{profileUser.Username}</p>
-                <p><strong>Email:</strong> {profileUser.email}</p>
+                {profileUser.links && profileUser.links.length > 0 && (
+                  <div className="mt-4">
+                    <h5>Links</h5>
+                    <ul className="list-unstyled">
+                      {profileUser.links.map((link, idx) => (
+                        <li key={idx}>
+                          <a href={link} target="_blank" rel="noopener noreferrer">{link}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 <p><strong>Joined:</strong> {new Date(profileUser.createdAt).toLocaleDateString()}</p>
                 <div className="mt-3">
                   <h5>About Me</h5>
                   <div dangerouslySetInnerHTML={{ __html: aboutMeHTML }} />
                 </div>
+              </div>
+            )}
+              {tab === "profile" && profileUser.themeSongUrl?.trim() !== "" && (
+              <div className="card p-4 mb-4" style={{
+                backgroundColor: profileUser.background_color || "rgba(255, 255, 255, 0.1)",
+                backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
+                borderRadius: "12px",
+                border: "1px solid rgba(255, 255, 255, 0.3)"
+              }}>
+                {profileUser.themeSongTitle && (
+                  <h5 className="mb-3 text-center">{profileUser.themeSongTitle}</h5>
+                )}
+                {(() => {
+                  const type = detectEmbedType(profileUser.themeSongUrl);
+
+                  switch (type) {
+                    case "youtube":
+                      const videoId = new URLSearchParams(new URL(profileUser.themeSongUrl).search).get('v') ||
+                                      profileUser.themeSongUrl.split("youtu.be/")[1];
+                      return (
+                        <iframe
+                          width="100%"
+                          height="300"
+                          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}`}
+                          allow="autoplay"
+                          allowFullScreen
+                          style={{ borderRadius: "8px" }}
+                        />
+                      );
+                    case "soundcloud":
+                      return (
+                        <iframe
+                          width="100%"
+                          height="80"
+                          allow="autoplay"
+                          src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(profileUser.themeSongUrl)}&auto_play=true&hide_related=false&show_comments=false&show_user=false&show_reposts=false&visual=false`}
+                          style={{ borderRadius: "8px" }}
+                        ></iframe>
+                      );
+                    case "twitch":
+                      const twitchChannel = profileUser.themeSongUrl.split("twitch.tv/")[1].split("/")[0];
+                      return (
+                        <iframe
+                          src={`https://player.twitch.tv/?channel=${twitchChannel}&parent=localhost&muted=true`}
+                          height="300"
+                          width="100%"
+                          allowFullScreen
+                          style={{ borderRadius: "8px" }}
+                        ></iframe>
+                      );
+                    case "spotify":
+                      const spotifyEmbed = profileUser.themeSongUrl.replace("/track/", "/embed/track/");
+                      return (
+                        <iframe
+                          src={spotifyEmbed}
+                          width="100%"
+                          height="80"
+                          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+                          style={{ borderRadius: "8px" }}
+                        ></iframe>
+                      );
+                    default:
+                      return (
+                        <audio
+                          src={profileUser.themeSongUrl}
+                          autoPlay
+                          loop
+                          controls
+                          style={{ width: "100%", borderRadius: "8px" }}
+                        />
+                      );
+                  }
+                })()}
               </div>
             )}
 

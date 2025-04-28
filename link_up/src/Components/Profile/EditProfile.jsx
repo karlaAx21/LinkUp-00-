@@ -8,6 +8,7 @@ const CustomizeProfile = () => {
   const [originalAboutMe, setOriginalAboutMe] = useState("");
 
   const navigate = useNavigate();
+  const [customImageFile, setCustomImageFile] = useState(null);
 
   const [htmlInput, setHtmlInput] = useState("");
   const [bgUrl, setBgUrl] = useState("");
@@ -15,6 +16,9 @@ const CustomizeProfile = () => {
   const [cardColor, setCardColor] = useState("");
   const [originalCardColor, setOriginalCardColor] = useState("");
   const [themeSongUrl, setThemeSongUrl] = useState("");
+  const [themeSongTitle, setThemeSongTitle] = useState("");
+  const [bioInput, setBioInput] = useState(user?.bio || "");
+  const [linksInput, setLinksInput] = useState(user?.links ? JSON.parse(user.links) : [""]);
 
 
   const [uploadingBg, setUploadingBg] = useState(false);
@@ -29,12 +33,15 @@ const CustomizeProfile = () => {
           setOriginalAboutMe(fresh.AboutMe || "");
           setProfilePicUrl(`http://localhost:5001/users/${fresh.id}/profile-pic`);
           setThemeSongUrl(fresh.themeSongUrl || "");
+          setThemeSongTitle(fresh.themeSongTitle || "");
+          setBioInput(fresh.bio || "");
 
           const minimalUserData = {
             id: fresh.id,
             Username: fresh.Username,
             AboutMe: fresh.AboutMe,
             background_color: fresh.background_color,
+            bio: fresh.bio,
           };
           localStorage.setItem("currentUser", JSON.stringify(minimalUserData));
         })
@@ -109,22 +116,16 @@ const CustomizeProfile = () => {
     try {
       const trimmedAboutMe = htmlInput.trim();
       const trimmedColor = cardColor.trim();
+      const trimmedLinks = linksInput.filter(link => link.trim() !== "");
+  
       const updatedFields = {
-        AboutMe: htmlInput,
-        background_color: cardColor,
+        AboutMe: trimmedAboutMe,
+        background_color: trimmedColor,
+        bio: bioInput.trim(),
+        themeSongUrl: themeSongUrl.trim(),
+        links: JSON.stringify(trimmedLinks),   // ✅ Add links cleanly
       };
   
-      if (trimmedAboutMe !== originalAboutMe.trim()) {
-        updatedFields.AboutMe = trimmedAboutMe;
-      }
-  
-      if (trimmedColor !== originalCardColor.trim()) {
-        updatedFields.background_color = trimmedColor;
-      }
-      if (themeSongUrl.trim() !== "") {
-        updatedFields.themeSongUrl = themeSongUrl.trim();
-      }
-      
       if (stagedProfilePic) {
         const formData = new FormData();
         formData.append("profilePic", stagedProfilePic);
@@ -134,38 +135,46 @@ const CustomizeProfile = () => {
           body: formData,
         });
       }
-      
+  
       if (stagedCoverPhoto) {
         const formData = new FormData();
         formData.append("coverPhoto", stagedCoverPhoto);
         formData.append("userId", user.id);
-      
+  
         const res = await fetchAPI("http://localhost:5001/api/users/upload-cover-photo", {
           method: "POST",
           body: formData,
         });
-      
+  
         if (!res.url) {
           throw new Error("Failed to upload cover photo.");
         }
       }
-      
-      
+  
+      if (customImageFile) {
+        const formData = new FormData();
+        formData.append("customImage", customImageFile);
+        formData.append("userId", user.id);
+  
+        await fetchAPI("http://localhost:5001/api/users/upload-custom-image", {
+          method: "POST",
+          body: formData,
+        });
+      }
+  
       if (Object.keys(updatedFields).length > 0) {
         await fetchAPI(`http://localhost:5001/api/users/update-profile/${user.id}`, {
           method: "PUT",
-          body: JSON.stringify({
-            AboutMe: htmlInput,
-            background_color: cardColor,
-          }),
+          body: JSON.stringify(updatedFields),
         });
-        
       }
   
       const updatedUser = {
         ...user,
-        ...(trimmedAboutMe !== originalAboutMe.trim() && { AboutMe: trimmedAboutMe }),
-        ...(trimmedColor !== originalCardColor.trim() && { background_color: trimmedColor }),
+        AboutMe: trimmedAboutMe,
+        background_color: trimmedColor,
+        bio: bioInput.trim(),
+        links: JSON.stringify(trimmedLinks),
       };
   
       localStorage.setItem("currentUser", JSON.stringify(updatedUser));
@@ -177,11 +186,6 @@ const CustomizeProfile = () => {
     }
   };
   
-  
-  
-  
-  
-  
   if (!user || !user.Username) {
     return <div className="text-center mt-5 text-muted">Loading...</div>;
   }
@@ -190,6 +194,20 @@ const CustomizeProfile = () => {
     <div className="container mt-5 p-4">
       <div className="card p-4 mb-4">
         <h3 className="mb-3">Customize Your Profile</h3>
+        <div className="form-group mb-3">
+          <label>Bio (max 150 characters)</label>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Enter your short bio..."
+            maxLength={150}
+            value={bioInput}
+            onChange={(e) => setBioInput(e.target.value)}
+          />
+          <small className="form-text text-muted">
+            {bioInput.length} / 150 characters
+          </small>
+        </div>
 
         <div className="form-group mb-3">
           <label>About Me</label>
@@ -201,13 +219,49 @@ const CustomizeProfile = () => {
             onChange={(e) => setHtmlInput(e.target.value)}
           />
         </div>
+        <div className="form-group mb-3">
+  <label>Links (one per line)</label>
+  {linksInput.map((link, index) => (
+    <div key={index} className="d-flex mb-2">
+      <input
+        type="text"
+        className="form-control"
+        placeholder="Enter URL"
+        value={link}
+        onChange={(e) => {
+          const updated = [...linksInput];
+          updated[index] = e.target.value;
+          setLinksInput(updated);
+        }}
+      />
+      <button
+        type="button"
+        className="btn btn-danger ms-2"
+        onClick={() => {
+          const updated = linksInput.filter((_, i) => i !== index);
+          setLinksInput(updated.length ? updated : [""]);
+        }}
+      >
+        ✖
+      </button>
+    </div>
+  ))}
+  <button
+    type="button"
+    className="btn btn-success"
+    onClick={() => setLinksInput([...linksInput, ""])}
+  >
+    ➕ Add Link
+  </button>
+</div>
+
       </div>
       <div className="card p-4 mb-4">
-        <h5 className="mb-3">Theme Song URL</h5>
+        <h5 className="mb-3">Video/Song URL</h5>
         <input
           type="text"
           className="form-control"
-          placeholder="Paste a direct MP3 URL here"
+          placeholder="Paste an MP3 file here"
           value={themeSongUrl}
           onChange={(e) => setThemeSongUrl(e.target.value)}
         />
@@ -262,23 +316,34 @@ const CustomizeProfile = () => {
           onChange={handleProfilePicChange}
     
         />
-<div className="mt-3 text-center">
-  <img
-    src={profilePicUrl || "/default.jpg"}
-    alt="Profile Preview"
-    className="rounded-circle"
-    style={{
-      outline: "3px solid #000000",
-      width: "120px",
-      height: "120px",
-      objectFit: "cover"
-    }}
-    onError={(e) => {
-      e.target.onerror = null;
-      e.target.src = "/default.jpg"; 
-    }}
-  />
-</div>  
+      <div className="mt-3 text-center">
+        <img
+          src={profilePicUrl || "/default.jpg"}
+          alt="Profile Preview"
+          className="rounded-circle"
+          style={{
+            outline: "3px solid #000000",
+            width: "120px",
+            height: "120px",
+            objectFit: "cover"
+          }}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "/default.jpg"; 
+          }}
+        />
+      </div> 
+
+
+      </div>
+      <div className="card p-4 mb-4">
+        <h5 className="mb-3">Upload Custom Image</h5>
+        <input
+          type="file"
+          accept="image/*"
+          className="form-control"
+          onChange={(e) => setCustomImageFile(e.target.files[0])}
+        />
       </div>
       <div className="card p-4 mb-4">
       <h5 className="mb-3">Background Color</h5>
