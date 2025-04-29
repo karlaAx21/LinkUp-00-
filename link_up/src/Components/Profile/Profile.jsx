@@ -96,7 +96,7 @@ const ProfilePage = () => {
         </div>
 
         <div className="row p-3">
-          {/* Left Side - Profile Card */}
+          {/*Profile Card */}
           <div className="col-md-4 mb-4">
             <div className="card text-center p-4" style={{
               backgroundColor: profileUser.background_color || "rgba(255, 255, 255, 0.1)",
@@ -128,7 +128,7 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Right Side - Info */}
+          {/*Info */}
           <div className="col-md-8">
             {tab === "profile" && (
               <div className="card p-4 mb-4" style={{
@@ -151,7 +151,6 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Full-Width Posts / Liked Section */}
         {(tab === "posts" || tab === "liked") && (
           <div className="container pb-4">
             <div className="card p-4" style={{
