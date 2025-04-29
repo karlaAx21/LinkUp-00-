@@ -111,9 +111,10 @@ const ProfilePage = () => {
         style={{
           width: "100%",
           height: "200px",
+          maxHeight: "100vh", // ⬅️ add this
           backgroundImage: hasCoverPhoto 
-          ? `url(http://localhost:5001/api/users/cover-photo/${profileUser.id}?t=${timestamp})`
-          : "none",
+            ? `url(http://localhost:5001/api/users/cover-photo/${profileUser.id}?t=${timestamp})`
+            : "none",
           backgroundColor: hasCoverPhoto ? "transparent" : "rgba(255, 255, 255, 0.1)",
           backdropFilter: hasCoverPhoto ? "none" : "blur(10px)",
           WebkitBackdropFilter: hasCoverPhoto ? "none" : "blur(10px)",
@@ -126,6 +127,7 @@ const ProfilePage = () => {
           backgroundRepeat: "no-repeat",
           position: "relative",
         }}
+
       >
 
         <ul className="nav nav-tabs mb-0 justify-content-center" style={{ backgroundColor: hasCoverPhoto ? "rgba(255,255,255,0.2)" : "transparent", borderRadius: "8px" }}>
@@ -137,9 +139,6 @@ const ProfilePage = () => {
           </li>
           <li className="nav-item">
             <button className={`nav-link ${tab === "liked" ? "active" : ""}`} onClick={() => setTab("liked")}>Liked</button>
-          </li>
-          <li className="nav-item">
-            <button className={`nav-link ${tab === "settings" ? "active" : ""}`} onClick={() => setTab("settings")}>Settings</button>
           </li>
           <li>
             
